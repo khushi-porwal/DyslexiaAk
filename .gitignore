@@ -1,0 +1,19 @@
+# Python virtual environments
+venv/
+Ml_Backend/ml/venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# ML (ignore everything)
+drawing-ml/
+
+*.h5
+
+# Node
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,99 @@
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+
+export default function ScreeningTest() {
+  const router = useRouter();
+
+  return (
+    <View className="flex-1 bg-[#9CD67D] px-5 pt-12">
+      
+      {/* Header */}
+      <View className="flex-row items-center justify-between mb-6">
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="#1F2937" />
+        </TouchableOpacity>
+
+        <Text className="text-xl font-bold text-gray-800">
+          Screening Test
+        </Text>
+
+        <TouchableOpacity>
+          <Ionicons name="person-circle-outline" size={28} color="#1F2937" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Owl Section */}
+      <View className="rounded-3xl   items-center">
+        <Image
+          source={require("../../../assets/images/Owls.png")}
+          className="w-64 h-28"
+          resizeMode="contain"
+        />
+      </View>
+      <View className="items-center   mb-8">
+        <Image
+          source={require("../../../assets/images/lines.png")}
+        />
+      </View>
+
+      {/* Test Cards - Row 1 */}
+      <View className="flex-row justify-between mb-6">
+        <TestCard
+          title="Phonological Awareness Test"
+          icon="volume-high-outline"
+          onPress={() => router.push("/main/screening/phonological")}
+        />
+        <TestCard
+          title="Grey Oral Reading Test"
+          icon="apps-outline"
+          onPress={() => router.push("/main/screening/greyReading")}
+        />
+      </View>
+
+      {/* Test Cards - Row 2 */}
+      <View className="flex-row justify-between">
+        <TestCard
+          title="Working Memory Test"
+          icon="bulb-outline"
+          onPress={() => router.push("/main/screening/workingMemory")}
+        />
+        <TestCard
+          title="Rapid Automated Writing"
+          icon="text-outline"
+          onPress={() => router.push("/main/screening/RapidAutomation")}
+        />
+      </View>
+    </View>
+  );
+}
+
+/* 🔹 Reusable Test Card */
+function TestCard({ title, icon, onPress }) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.85}
+      className="
+        bg-white
+        w-[48%]
+        h-40
+        rounded-2xl
+        px-3
+        py-6
+        items-center
+        justify-center
+        shadow-md
+      "
+    >
+      <Ionicons name={icon} size={32} color="#6C63FF" />
+
+      <Text
+        className="text-center text-gray-700 mt-4 font-medium text-sm"
+        numberOfLines={2}
+      >
+        {title}
+      </Text>
+    </TouchableOpacity>
+  );
+}
