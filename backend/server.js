@@ -59,6 +59,7 @@ app.use("/api", historyRoutes);
 // phonological can stay, not harmful
 app.use("/api/phonological", require("././routes/Phonological_routes/phonologicalRoutes"));
 
+app.use("/api/drawings", require("./routes/Drawing/drawingRoutes"));
 /* ===============================
    HEALTH CHECK
 ================================ */
