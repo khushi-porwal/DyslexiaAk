@@ -5,6 +5,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+const workingMemoryRoutes = require("./routes/WorkingMemory_routes/workingMemoryRoutes");
 
 dotenv.config();
 
@@ -58,6 +59,8 @@ const historyRoutes = require("./routes/History/historyRoutes");
 app.use("/api", historyRoutes);
 // phonological can stay, not harmful
 app.use("/api/phonological", require("././routes/Phonological_routes/phonologicalRoutes"));
+app.use("/api/working-memory", workingMemoryRoutes);
+app.use("/api/profile", require("./routes/Profile_routes/profileRoutes"));
 
 /* ===============================
    HEALTH CHECK
