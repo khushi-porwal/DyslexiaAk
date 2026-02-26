@@ -19,4 +19,4 @@ node_modules/
 Thumbs.db
 
 
-Ml_Backend/ml/data/*.npy
+Ml_Backend/ml/data/
