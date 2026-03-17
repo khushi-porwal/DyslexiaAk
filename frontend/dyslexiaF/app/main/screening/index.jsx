@@ -1,11 +1,29 @@
 import { View, Text, TouchableOpacity, Image, Platform } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { getScreeningProgress } from "../../../constants/progressStorage";
 
 export default function ScreeningTest() {
   const router = useRouter();
+  const [hasProgress, setHasProgress] = useState(false);
+
+  // Refresh progress availability each time we land on this screen
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      (async () => {
+        const progress = await getScreeningProgress();
+        if (isActive) {
+          setHasProgress(Object.keys(progress || {}).length > 0);
+        }
+      })();
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
 
   // When leaving this screen (Expo Router hides it with aria-hidden), blur any focused element
   // to avoid "aria-hidden ancestor retains focus" warnings on web.
@@ -81,6 +99,18 @@ export default function ScreeningTest() {
           onPress={() => router.push("/main/screening/rapid-automation")}
         />
       </View>
+
+      {hasProgress && (
+        <TouchableOpacity
+          onPress={() => router.push("/main/screening/progress-report")}
+          className="mt-8 bg-white flex-row items-center justify-center rounded-2xl py-4 px-4 shadow-md border border-green-200"
+        >
+          <Ionicons name="stats-chart" size={22} color="#1F2937" />
+          <Text className="text-base font-semibold text-gray-800 ml-2">
+            View Progress Report
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

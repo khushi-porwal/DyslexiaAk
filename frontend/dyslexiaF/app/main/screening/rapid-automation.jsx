@@ -13,6 +13,7 @@ import Svg, { Path } from "react-native-svg";
 import ViewShot from "react-native-view-shot";
 import axios from "axios";
 import { getBackendUrl } from "../../../constants/api";
+import { saveScreeningResult } from "../../../constants/progressStorage";
 
 const CANVAS_SIZE = 280;
 
@@ -84,7 +85,16 @@ export default function RapidDrawing() {
         { timeout: 15000 }
       );
 
-      setResult(res.data);
+      const payload = res.data;
+      setResult(payload);
+
+      if (payload?.success) {
+        await saveScreeningResult("rapid_automation", {
+          target: currentTarget,
+          predicted: payload.predicted,
+          correct: !!payload.correct,
+        });
+      }
     } catch (err) {
       console.log("ERROR:", err.response?.data || err.message);
       setResult({ error: true, message: err.response?.data?.message || "Could not check drawing" });
