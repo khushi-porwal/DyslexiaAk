@@ -1,9 +1,26 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, Platform } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 export default function ScreeningTest() {
   const router = useRouter();
+
+  // When leaving this screen (Expo Router hides it with aria-hidden), blur any focused element
+  // to avoid "aria-hidden ancestor retains focus" warnings on web.
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (typeof document !== "undefined") {
+          const active = document.activeElement;
+          if (active && typeof active.blur === "function") {
+            active.blur();
+          }
+        }
+      };
+    }, [])
+  );
 
   return (
     <View className="flex-1 bg-[#9CD67D] px-5 pt-12">
@@ -61,7 +78,7 @@ export default function ScreeningTest() {
         <TestCard
           title="Rapid Automated Writing"
           icon="text-outline"
-          onPress={() => router.push("/main/screening/RapidAutomation")}
+          onPress={() => router.push("/main/screening/rapid-automation")}
         />
       </View>
     </View>
@@ -74,6 +91,8 @@ function TestCard({ title, icon, onPress }) {
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.85}
+      focusable={Platform.OS !== "web"} // prevent lingering web focus when the screen gets hidden
+      tabIndex={Platform.OS === "web" ? -1 : undefined}
       className="
         bg-white
         w-[48%]

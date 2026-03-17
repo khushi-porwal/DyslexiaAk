@@ -5,7 +5,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-
+const workingMemoryRoutes = require("./routes/WorkingMemory_routes/workingMemoryRoutes")
 dotenv.config();
 
 const app = express();
@@ -28,7 +28,8 @@ app.use(
   })
 );
 
-app.use(express.json());
+// Default JSON body limit; drawings route needs more for base64 images (especially from Android)
+app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 
 /* ===============================
@@ -58,7 +59,7 @@ const historyRoutes = require("./routes/History/historyRoutes");
 app.use("/api", historyRoutes);
 // phonological can stay, not harmful
 app.use("/api/phonological", require("././routes/Phonological_routes/phonologicalRoutes"));
-
+app.use("/api/working-memory", workingMemoryRoutes);
 app.use("/api/drawings", require("./routes/Drawing/drawingRoutes"));
 /* ===============================
    HEALTH CHECK

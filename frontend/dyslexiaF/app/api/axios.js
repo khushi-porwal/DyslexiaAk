@@ -1,7 +1,8 @@
 import axios from "axios";
+import { getBackendUrl } from "../../constants/api";
 
 const API = axios.create({
-  baseURL: "http://192.168.0.183:5000",
+  baseURL: getBackendUrl(),
   timeout: 10000,
 });
 

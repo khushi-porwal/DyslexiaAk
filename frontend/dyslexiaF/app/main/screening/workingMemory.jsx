@@ -1,12 +1,13 @@
 import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import axios from "../../api/axios";
+import axios from "axios";
 import * as Speech from "expo-speech";
-
-
+import { useRouter } from "expo-router";
+import { getBackendUrl } from "../../../constants/api";
 
 export default function WorkingMemory() {
+  const router = useRouter();
 
   const [questions, setQuestions] = useState([]);
   const [selected, setSelected] = useState({});
@@ -18,10 +19,12 @@ export default function WorkingMemory() {
 
   const fetchQuestions = async () => {
     try {
-      const res = await axios.get("/api/working-memory");
-      setQuestions(res.data);
+      const backend = getBackendUrl();
+      const res = await axios.get(`${backend}/api/working-memory`);
+      setQuestions(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
-      console.log(error);
+      console.log("Failed to load working-memory questions:", error?.message || error);
+      setQuestions([]);
     }
   };
 
@@ -50,7 +53,9 @@ export default function WorkingMemory() {
       <View className="flex-row justify-between items-center mb-6">
         <Ionicons name="arrow-back" size={26} />
         <Text className="text-2xl font-bold">Working Memory Test</Text>
-        <Ionicons name="person-circle" size={32} />
+        <TouchableOpacity onPress={() => router.push("/main/profile")}>
+            <Ionicons name="person-circle" size={32} />
+        </TouchableOpacity>
       </View>
 
       {questions.map((q, qIndex) => (
