@@ -41,6 +41,8 @@ export default function DashboardScreen() {
         <TouchableOpacity
           onPress={() => router.push("/main/solutions/writing")}
           className="bg-white rounded-2xl flex-row items-center px-4 py-6"
+          onPress={() => router.push("/main/solutions/reading")}
+          
         >
           <MaterialCommunityIcons name="book-open-page-variant" size={28} color="#7D3C98" />
           <View className="h-8 w-[1px] bg-purple-700 mx-3" />
