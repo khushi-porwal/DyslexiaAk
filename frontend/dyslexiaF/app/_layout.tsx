@@ -10,12 +10,11 @@ export default function RootLayout() {
         {/* Welcome */}
         <Stack.Screen name="index" />
 
-        {/* Auth Screens */}
-        <Stack.Screen name="authentication/login" />
-        <Stack.Screen name="authentication/signup" />
+        {/* Auth stack */}
+        <Stack.Screen name="authentication" />
 
         {/* Main & Tabs */}
-        <Stack.Screen name="(main)" />
+        <Stack.Screen name="main" />
         <Stack.Screen name="(tabs)" />
       </Stack>
     </GestureHandlerRootView>

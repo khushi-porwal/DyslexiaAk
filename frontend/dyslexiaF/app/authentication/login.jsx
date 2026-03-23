@@ -70,6 +70,8 @@ export default function LoginPreview() {
       if (res.data.refreshToken) {
         await AsyncStorage.setItem("refreshToken", res.data.refreshToken);
       }
+      // Clear any cached screening progress from a previous user session
+      await AsyncStorage.removeItem("screening-progress");
 
       Alert.alert("Success", "Logged in successfully!");
       

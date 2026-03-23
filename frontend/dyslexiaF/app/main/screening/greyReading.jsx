@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import API from "../../api/axios"
+import { saveScreeningResult } from "../../../constants/progressStorage";
 export default function GreyReadingScreen({ navigation }) {
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
@@ -64,6 +65,10 @@ const handleFinish = async () => {
     );
 
     console.log("History saved:", res.data);
+
+    await saveScreeningResult("grey_reading", {
+      duration: seconds,
+    });
   } catch (error) {
     console.log(
       "History API error:",

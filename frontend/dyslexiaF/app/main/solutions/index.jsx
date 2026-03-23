@@ -39,6 +39,7 @@ export default function DashboardScreen() {
 
         {/* Reading Assistant */}
         <TouchableOpacity
+          onPress={() => router.push("/main/solutions/writing")}
           className="bg-white rounded-2xl flex-row items-center px-4 py-6"
           onPress={() => router.push("/main/solutions/reading")}
           
@@ -50,6 +51,7 @@ export default function DashboardScreen() {
 
         {/* Writing Assistant */}
         <TouchableOpacity
+          onPress={() => router.push("/main/solutions/writing")}
           className="bg-white rounded-2xl flex-row items-center px-4 py-6"
         >
           <Ionicons name="create-outline" size={28} color="#7D3C98" />

@@ -1,9 +1,11 @@
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, Image, ScrollView, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import * as Speech from "expo-speech";
 import { useRouter } from "expo-router";
+import { getBackendUrl } from "../../../constants/api";
+import { saveScreeningResult } from "../../../constants/progressStorage";
 
 export default function WorkingMemory() {
   const router = useRouter();
@@ -11,6 +13,7 @@ export default function WorkingMemory() {
   const [questions, setQuestions] = useState([]);
   const [selected, setSelected] = useState({});
   const [feedback, setFeedback] = useState({});
+  const [scoreSummary, setScoreSummary] = useState(null);
 
   useEffect(() => {
     fetchQuestions();
@@ -18,10 +21,12 @@ export default function WorkingMemory() {
 
   const fetchQuestions = async () => {
     try {
-      const res = await axios.get("http://192.168.0.126:5000/api/working-memory");
-      setQuestions(res.data);
+      const backend = getBackendUrl();
+      const res = await axios.get(`${backend}/api/working-memory`);
+      setQuestions(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
-      console.log(error);
+      console.log("Failed to load working-memory questions:", error?.message || error);
+      setQuestions([]);
     }
   };
 
@@ -43,6 +48,34 @@ export default function WorkingMemory() {
       setFeedback({ ...feedback, [qIndex]: "wrong" });
     }
   };
+
+  const handleSubmitResults = async () => {
+    if (!questions.length) {
+      Alert.alert("No questions", "Please load questions first.");
+      return;
+    }
+
+    if (Object.keys(selected).length < questions.length) {
+      Alert.alert("Incomplete", "Answer every word before saving progress.");
+      return;
+    }
+
+    const correct = questions.reduce((acc, q, idx) => {
+      return acc + (selected[idx] === q.correctAnswer ? 1 : 0);
+    }, 0);
+    const total = questions.length;
+    const accuracy = total ? Math.round((correct / total) * 100) : 0;
+
+    const summary = { correct, total, accuracy };
+    setScoreSummary(summary);
+
+    await saveScreeningResult("working_memory", summary);
+
+    Alert.alert("Progress saved", `You answered ${correct} of ${total} correctly.`);
+  };
+
+  const allAnswered =
+    questions.length > 0 && Object.keys(selected).length === questions.length;
 
   return (
     <ScrollView className="flex-1 bg-[#FFE08A] px-4 pt-10">
@@ -131,6 +164,36 @@ export default function WorkingMemory() {
 
         </View>
       ))}
+
+      <View className="mt-4 mb-20">
+        <TouchableOpacity
+          onPress={handleSubmitResults}
+          disabled={!allAnswered}
+          className={`py-4 rounded-2xl items-center ${
+            allAnswered ? "bg-[#4C7A3E]" : "bg-gray-300"
+          }`}
+        >
+          <Text className="text-white font-semibold text-lg">
+            Save Progress
+          </Text>
+          {!allAnswered && (
+            <Text className="text-white mt-1 text-xs">
+              Answer all words to enable
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        {scoreSummary && (
+          <View className="mt-3 bg-white rounded-2xl p-4 border border-[#4C7A3E]">
+            <Text className="text-lg font-bold text-[#4C7A3E] text-center">
+              Accuracy: {scoreSummary.accuracy}%
+            </Text>
+            <Text className="text-center text-gray-700 mt-1">
+              {scoreSummary.correct} of {scoreSummary.total} words correct
+            </Text>
+          </View>
+        )}
+      </View>
 
     </ScrollView>
   );

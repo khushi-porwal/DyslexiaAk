@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import axios from "../../api/axios";
 import { Ionicons } from "@expo/vector-icons";
+import { saveScreeningResult } from "../../../constants/progressStorage";
 
 
 
@@ -149,9 +150,15 @@ export default function PhonologicalTest() {
 
       const response = await axios.post(API_URL, payload);
 
-      setScore(response.data.score);
+      const finalScore = response.data.score;
+      setScore(finalScore);
 
-      Alert.alert("✅ Test Completed", `Your Score: ${response.data.score}`);
+      await saveScreeningResult("phonological", {
+        score: finalScore,
+        totalTasks: totalSteps,
+      });
+
+      Alert.alert("✅ Test Completed", `Your Score: ${finalScore}`);
     } catch (error) {
       console.log("❌ Submit Error:", error?.response?.data || error.message);
 
