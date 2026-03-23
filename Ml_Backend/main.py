@@ -18,27 +18,57 @@ class DrawingRequest(BaseModel):
 def predict(req: DrawingRequest):
     try:
         result = predict_drawing(req.image)
+        # Defensive: ensure we got a dict
+        if not isinstance(result, dict):
+            return {
+                "success": False,
+                "correct": False,
+                "score": 0,
+                "confidence": 0,
+                "message": "Prediction service returned invalid response",
+            }
+
+        # Handle model/reporting errors before accessing prediction fields
+        if not result.get("success"):
+            return {
+                "success": False,
+                "correct": False,
+                "score": 0,
+                "confidence": result.get("confidence", 0),
+                "message": result.get("message", "Prediction failed"),
+            }
+
+        predicted = result.get("prediction")
+        if predicted is None:
+            return {
+                "success": False,
+                "correct": False,
+                "score": 0,
+                "confidence": result.get("confidence", 0),
+                "message": "Prediction missing",
+            }
+
+        correct = predicted == req.target
+
+        return {
+            "success": True,
+            "predicted": predicted,
+            "expected": req.target,
+            "correct": correct,
+            "score": 1 if correct else 0,
+            "confidence": result.get("confidence", 0),
+            "lowConfidence": result.get("lowConfidence", False),
+        }
+
     except Exception as e:
+        # Catch-all to avoid 500s and bubble the error back to client
         return {
             "success": False,
             "correct": False,
             "score": 0,
             "confidence": 0,
-            "message": str(e) or "Image processing failed",
+            "message": str(e) or "Unexpected error",
         }
-
-    predicted = result["prediction"]
-    correct = predicted == req.target
-
-    return {
-        "success": True,
-        "predicted": predicted,
-        "expected": req.target,
-        "correct": correct,
-        "score": 1 if correct else 0,
-        "confidence": result["confidence"],
-        "lowConfidence": result.get("lowConfidence", False),
-    }
 
 
 

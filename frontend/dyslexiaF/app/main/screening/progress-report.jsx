@@ -164,7 +164,7 @@ export default function ProgressReport() {
       <View className="bg-white rounded-3xl p-4 mb-5 shadow-sm border border-green-100">
         <Text className="text-gray-800 font-semibold">Screening Summary</Text>
         <Text className="text-gray-600 text-sm mt-1">
-          Progress is stored on this device after you finish each screening test.
+          Progress is stored with your account and cached on this device after you finish each screening test.
         </Text>
         <View className="flex-row mt-4 items-center">
           <CompletionDonut percent={summary.completion * 100} />

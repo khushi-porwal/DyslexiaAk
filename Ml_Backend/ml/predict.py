@@ -63,7 +63,6 @@ import os
 
 import numpy as np
 import tensorflow as tf
-
 from ml.preprocess import preprocess_base64_image
 
 # -----------------------------

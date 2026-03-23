@@ -25,7 +25,7 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: "Email already exists" });
 
     // Strong password check
-    if (password.length < 8)
+    if (!password || password.length < 8)
       return res
         .status(400)
         .json({ message: "Password must be at least 8 characters long" });
@@ -38,18 +38,26 @@ exports.signup = async (req, res) => {
       password: hashedPass,
     });
 
-    res.status(201).json({ message: "Signup successful", user: newUser });
+    const token = generateToken(newUser._id);
+    const refreshToken = generateRefreshToken(newUser._id);
+
+    newUser.password = undefined;
+
+    res.status(201).json({
+      message: "Signup successful",
+      token,
+      refreshToken,
+      user: newUser,
+    });
   } catch (error) {
-  console.log("Signup error message:", error.message);
-  console.log("Signup error response:", error?.response?.data);
-  console.log("Signup error status:", error?.response?.status);
+    console.log("Signup error message:", error.message);
+    console.log("Signup error response:", error?.response?.data);
+    console.log("Signup error status:", error?.response?.status);
 
-  Alert.alert(
-    "Signup Failed",
-    error?.response?.data?.message || "Try again"
-  );
-}
-
+    return res
+      .status(500)
+      .json({ message: error?.response?.data?.message || "Signup Failed" });
+  }
 };
 
 exports.login = async (req, res) => {

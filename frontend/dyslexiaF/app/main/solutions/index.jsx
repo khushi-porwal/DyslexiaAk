@@ -39,8 +39,8 @@ export default function DashboardScreen() {
 
         {/* Reading Assistant */}
         <TouchableOpacity
+          onPress={() => router.push("/main/solutions/writing")}
           className="bg-white rounded-2xl flex-row items-center px-4 py-6"
-          
         >
           <MaterialCommunityIcons name="book-open-page-variant" size={28} color="#7D3C98" />
           <View className="h-8 w-[1px] bg-purple-700 mx-3" />
@@ -49,6 +49,7 @@ export default function DashboardScreen() {
 
         {/* Writing Assistant */}
         <TouchableOpacity
+          onPress={() => router.push("/main/solutions/writing")}
           className="bg-white rounded-2xl flex-row items-center px-4 py-6"
         >
           <Ionicons name="create-outline" size={28} color="#7D3C98" />
