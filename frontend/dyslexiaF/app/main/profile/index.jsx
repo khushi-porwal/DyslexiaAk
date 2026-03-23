@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import { Platform } from "react-native";
 
 
 
@@ -42,57 +43,118 @@ export default function Profile() {
   const saveProfile = async () => {
     await axios.put("http://192.168.0.126:5000/api/profile", user);
     alert("Profile updated successfully");
+
   };
 
   
 
-  const pickImage = async () => {
+//   const pickImage = async () => {
+//     console.log("Hi");
+//     const { status } =
+//     await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    const { status } =
+//   if (status !== "granted") {
+//     alert("Permission needed to access gallery!");
+//     return;
+//   }
+//   const result = await ImagePicker.launchImageLibraryAsync({
+//     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+//     quality: 0.7,
+//   });
+
+//   if (!result.canceled) {
+//     const imageUri = result.assets[0].uri;
+
+//     const formData = new FormData();
+
+//     formData.append("avatar", {
+//       uri: imageUri,
+//       name: "profile.jpg",
+//       type: "image/jpeg",
+//     });    
+
+//     try {
+//       console.log("🚀 Sending request...");
+     
+//       const res = await axios.put(
+//         "http://192.168.0.126:5000/api/profile/avatar",
+//       formData,
+//       // { headers: { "Content-Type": "multipart/form-data" } }
+//     );
+
+    
+//           // console.log("SERVER RESPONSE:", res.data);
+//       // setUser(res.data);
+//       setUser(prev => ({
+//   ...prev,
+//   avatar: res.data.avatar
+// }));
+
+//     } catch (err) {
+//       console.log("UPLOAD ERROR:", err.message);
+//       console.log("FULL ERROR:", err.toJSON?.());
+//     }
+//   }
+// };
+
+
+const pickImage = async () => {
+  const { status } =
     await ImagePicker.requestMediaLibraryPermissionsAsync();
 
   if (status !== "granted") {
     alert("Permission needed to access gallery!");
     return;
   }
+
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     quality: 0.7,
   });
 
-  if (!result.canceled) {
-    const imageUri = result.assets[0].uri;
+  if (result.canceled) return;
 
-    const formData = new FormData();
+  const imageUri = result.assets[0].uri;
+  const formData = new FormData();
+
+  if (Platform.OS === "web") {
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
+    formData.append("avatar", blob, "profile.jpg");
+  } else {
     formData.append("avatar", {
       uri: imageUri,
       name: "profile.jpg",
       type: "image/jpeg",
     });
+    console.log("image data :");
+    console.log(imageUri);
+  }
 
-    try {
-      // console.log("🚀 Sending request...");
-      const res = await axios.put(
-        "http://192.168.0.126:5000/api/profile/avatar",
+  try {
+    const res = await axios.put(
+      "http://192.168.0.126:5000/api/profile/avatar",
       formData,
-      { headers: { "Content-Type": "multipart/form-data" } }
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Accept: "application/json",
+        },
+        transformRequest: (data, headers) => data,
+      }
     );
+    console.log("✅ Upload Success:", res.data);
 
-    
-          // console.log("SERVER RESPONSE:", res.data);
-      // setUser(res.data);
-      setUser(prev => ({
-  ...prev,
-  avatar: res.data.avatar
-}));
+    const newAvatar = res.data?.avatar || imageUri;
+    setUser((prev) => ({
+      ...prev,
+      avatar: newAvatar,
+    }));
 
-    } catch (err) {
-      console.log("UPLOAD ERROR:", err.message);
-      console.log("FULL ERROR:", err.toJSON?.());
-    }
+  } catch (err) {
+    console.log("❌ Upload Error:", err.response?.data || err.message);
   }
 };
-
 
   return (
     <ScrollView className="flex-1 bg-[#E6B3FF] px-5 pt-10">

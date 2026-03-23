@@ -19,6 +19,7 @@ router.get("/", async (req, res) => {
 // UPDATE profile
 router.put("/", async (req, res) => {
   try {
+
     const updated = await Profile.findOneAndUpdate(
       {},
       req.body,
@@ -55,31 +56,70 @@ router.put("/", async (req, res) => {
 //   }
 // });
 
-router.put("/avatar", upload.single("avatar"), async (req, res) => {
-  try {
-    console.log("📦 FILE RECEIVED:", req.file);
+// router.put("/avatar", upload.single("avatar"), async (req, res) => {
+//   try {
+//     console.log("📦 FILE RECEIVED:", req.file);
 
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
+//     if (!req.file) {
+//       return res.status(400).json({ message: "No file uploaded" });
+//     }
+
+//     const user = await Profile.findOne();
+
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     user.avatar = req.file.path;
+//     await user.save();
+
+//     res.json(user);
+
+//   } catch (error) {
+//     console.error("🔥 AVATAR UPLOAD ERROR:", error);
+//     res.status(500).json({ message: error.message });
+//   }
+// });
+
+
+router.put(
+  "/avatar",
+
+  // 🔍 Debug Content-Type
+  (req, res, next) => {
+    console.log("CONTENT TYPE:", req.headers["content-type"]);
+    next();
+  },
+
+  upload.single("avatar"),
+
+  async (req, res) => {
+    try {
+      console.log("📦 FILE RECEIVED:", req.file);
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const user = await Profile.findOne();
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Cloudinary gives URL in req.file.path
+      user.avatar = req.file.path;
+
+      await user.save();
+
+      res.json(user);
+
+    } catch (error) {
+      console.error("🔥 AVATAR UPLOAD ERROR:", error);
+      res.status(500).json({ message: error.message });
     }
-
-    const user = await Profile.findOne();
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    user.avatar = req.file.path;
-    await user.save();
-
-    res.json(user);
-
-  } catch (error) {
-    console.error("🔥 AVATAR UPLOAD ERROR:", error);
-    res.status(500).json({ message: error.message });
   }
-});
-
+);
 
 
 module.exports = router;

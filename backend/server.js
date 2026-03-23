@@ -61,6 +61,10 @@ app.use("/api", historyRoutes);
 app.use("/api/phonological", require("././routes/Phonological_routes/phonologicalRoutes"));
 app.use("/api/working-memory", workingMemoryRoutes);
 app.use("/api/profile", require("./routes/Profile_routes/profileRoutes"));
+app.use(
+  "/api/reading-assistant",
+  require("./routes/ReadingAssistant_routes/readingRoutes")
+);
 
 /* ===============================
    HEALTH CHECK

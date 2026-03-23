@@ -40,6 +40,7 @@ export default function DashboardScreen() {
         {/* Reading Assistant */}
         <TouchableOpacity
           className="bg-white rounded-2xl flex-row items-center px-4 py-6"
+          onPress={() => router.push("/main/solutions/reading")}
           
         >
           <MaterialCommunityIcons name="book-open-page-variant" size={28} color="#7D3C98" />
