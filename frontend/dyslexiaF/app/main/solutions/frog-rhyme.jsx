@@ -10,6 +10,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { markGameProgress } from "./progressStore";
 
 const WORDS = ["cat", "frog", "star", "moon", "light", "run", "play", "tree"];
 
@@ -68,7 +69,11 @@ export default function FrogRhymingGame() {
       setIsCorrect(true);
       setMessage("Ribbit! That rhymes. 🐸");
       setFeedbackImage(IMAGE_URLS.girl);
-      setScore((prev) => prev + 1);
+      setScore((prev) => {
+        const next = prev + 1;
+        markGameProgress("frog-rhyme", { score: next });
+        return next;
+      });
       setStreak((prev) => {
         const next = prev + 1;
         setBestStreak((best) => Math.max(best, next));

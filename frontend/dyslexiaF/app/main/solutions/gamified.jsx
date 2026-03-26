@@ -97,6 +97,17 @@ export default function Gamified() {
           </View>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          className="bg-white rounded-2xl px-4 py-4 flex-row items-center gap-3 shadow-sm"
+          onPress={() => router.push("/main/solutions/progress-report")}
+        >
+          <Ionicons name="stats-chart" size={22} color="#7D3BCF" />
+          <View>
+            <Text className="font-semibold text-[16px] text-gray-900">Progress Report</Text>
+            <Text className="text-xs text-gray-500">See scores & updates</Text>
+          </View>
+        </TouchableOpacity>
+
        
 
       </View>

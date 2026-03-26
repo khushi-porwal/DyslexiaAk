@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, StatusBar, ScrollView } from 
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { markGameProgress } from "./progressStore";
 
 // Pairs of similar-looking or often-confused letters
 const LETTER_SETS = [
@@ -58,12 +59,24 @@ export default function WordMatchGame() {
             c.id === a || c.id === b ? { ...c, matched: true } : c
           )
         );
-        setScore((s) => s + 1); // 1 mark per correct pair
+        setScore((s) => {
+          const next = s + 1;
+          markGameProgress("word-match", { score: next });
+          return next;
+        }); // 1 mark per correct pair
       }
       setTimeout(() => setSelected([]), 200);
       setMoves((m) => m + 1);
     }
   }, [selected, cards]);
+
+  useEffect(() => {
+    if (allMatched) {
+      markGameProgress("word-match", { score, completed: true });
+    } else {
+      markGameProgress("word-match", { score, completed: false });
+    }
+  }, [allMatched, score]);
 
   const handlePress = (cardId) => {
     const card = cards.find((c) => c.id === cardId);

@@ -1,5 +1,6 @@
 const { getWritingSuggestion } = require("../../services/Ai/groqService");
 const { spellCheck } = require("../../services/Ai/groqService");
+const { saveWritingSession } = require("../WritingAssistant/writingSessionController");
 
 const writingCoach = async (req, res) => {
   try {
@@ -11,7 +12,28 @@ const writingCoach = async (req, res) => {
 
     const suggestion = await getWritingSuggestion(text.trim());
 
-    return res.json(suggestion);
+    let savedSession;
+    try {
+      savedSession = await saveWritingSession({
+        userId: req.userId,
+        originalText: text.trim(),
+        suggestion,
+        correctedText: req.body?.corrected,
+        corrections: req.body?.corrections,
+        metadata: {
+          client: req.headers["user-agent"],
+          ip: req.ip || req.headers["x-forwarded-for"],
+        },
+      });
+    } catch (err) {
+      console.error("Writing session persistence failed:", err.message);
+    }
+
+    return res.json({
+      ...suggestion,
+      sessionId: savedSession?._id,
+      saved: Boolean(savedSession),
+    });
   } catch (error) {
     console.error("Groq writing assistant error:", error.message || error.code);
 

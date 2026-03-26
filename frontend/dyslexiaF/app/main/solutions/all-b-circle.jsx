@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image } from "reac
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { markGameProgress } from "./progressStore";
 
 const LEVELS = [
   { target: "b", options: ["b", "d", "p", "q", "h", "g", "l", "b"] },
@@ -48,7 +49,11 @@ export default function AllBCircleGame() {
 
       const foundAll = nextSelected.length === totalTargets;
       if (foundAll) {
-        setScore((s) => s + 1);
+        setScore((s) => {
+          const next = s + 1;
+          markGameProgress("all-b-circle", { score: next, completed: next >= LEVELS.length });
+          return next;
+        });
         setFeedback("Great spot! Next level →");
         setLocked(true);
         setTimeout(() => {
@@ -126,9 +131,9 @@ export default function AllBCircleGame() {
 
       <View style={styles.board}>
         {optionsWithIndex.map(({ letter, key }, idx) => {
-          const isCorrect = letter === target;
-          const isSelected = selected.includes(idx);
-          return (
+      const isCorrect = letter === target;
+      const isSelected = selected.includes(idx);
+      return (
             <TouchableOpacity
               key={key}
               style={[

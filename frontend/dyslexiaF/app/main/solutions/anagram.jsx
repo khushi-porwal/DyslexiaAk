@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, Platform } from "react-native";
 import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import Svg, { Circle } from "react-native-svg";
+import { markGameProgress } from "./progressStore";
 
 const SUCCESS_IMAGE = "https://i.pinimg.com/736x/d9/96/8e/d9968eba01a9c61318cc8aef32695902.jpg";
 const FAIL_IMAGE = "https://i.pinimg.com/736x/a3/dd/c4/a3ddc47acfdffa977ae812cda60d8ae5.jpg";
@@ -27,6 +28,15 @@ export default function AnagramGame() {
   const [score, setScore] = useState(0);
 
   const playSound = async (uri) => {
+    // expo-av sometimes throws on web; fall back to native Audio
+    if (Platform.OS === "web") {
+      if (typeof window !== "undefined" && window.Audio) {
+        const audio = new window.Audio(uri);
+        audio.play().catch(() => {});
+      }
+      return;
+    }
+
     try {
       const { sound } = await Audio.Sound.createAsync({ uri });
       await sound.playAsync();
@@ -69,7 +79,11 @@ export default function AnagramGame() {
     if (formed === currentWord) {
       setMessage("Great job! New word loading...");
       setFeedbackImage(SUCCESS_IMAGE);
-      setScore((prev) => prev + 1);
+      setScore((prev) => {
+        const next = prev + 1;
+        markGameProgress("anagram", { score: next });
+        return next;
+      });
       playSound(SUCCESS_SOUND);
       setTimeout(startNewGame, 1400);
     } else if (!currentWord.startsWith(formed)) {

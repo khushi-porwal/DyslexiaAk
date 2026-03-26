@@ -66,6 +66,7 @@ export default function LoginPreview() {
 
       // Store tokens
       await AsyncStorage.setItem("token", res.data.token);
+      await AsyncStorage.setItem("userEmail", email.toLowerCase());
       
       if (res.data.refreshToken) {
         await AsyncStorage.setItem("refreshToken", res.data.refreshToken);

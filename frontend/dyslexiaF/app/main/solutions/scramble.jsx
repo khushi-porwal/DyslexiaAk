@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { markGameProgress } from "./progressStore";
 
 const WORDS = [
   {
@@ -67,7 +68,11 @@ export default function ScrambleGame() {
     const correct = currentWord.correct.toLowerCase();
 
     if (formed === correct) {
-      setScore((prev) => prev + 1);
+      setScore((prev) => {
+        const next = prev + 1;
+        markGameProgress("scramble", { score: next });
+        return next;
+      });
       setPromptMessage("🎉 Great job! That spells it right.");
       setShowPrompt(true);
       setTimeout(() => goNextWord(), 900);
@@ -83,9 +88,11 @@ export default function ScrambleGame() {
       setCurrentIndex(next);
       setUserInput(Array(WORDS[next].scrambled.length).fill(""));
       setShowPrompt(false);
+      markGameProgress("scramble", { score, completed: false });
     } else {
       setPromptMessage("🎊 You finished the game!");
       setShowPrompt(true);
+      markGameProgress("scramble", { score, completed: true });
     }
   };
 
