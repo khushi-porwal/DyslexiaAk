@@ -17,6 +17,7 @@ const historySchema = new mongoose.Schema(
         "phonological",
         "working_memory",
         "rapid_writing",
+        "reading_assistant",
       ],
     },
 

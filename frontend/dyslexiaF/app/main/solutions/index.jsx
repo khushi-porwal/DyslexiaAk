@@ -61,6 +61,7 @@ export default function DashboardScreen() {
 
         {/* Sequencing Assistant */}
         <TouchableOpacity
+          onPress={() => router.push("/main/solutions/sequencing")}
           className="bg-white rounded-2xl flex-row items-center px-4 py-6"
         >
           <MaterialCommunityIcons name="view-dashboard-outline" size={28} color="#7D3C98" />

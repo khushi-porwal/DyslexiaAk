@@ -5,6 +5,7 @@ const {
   transcribeAudio,
   translateText,
 } = require("../../controllers/ReadingAssistant/readingController");
+const authMiddleware = require("../../middleware/Auth/authMiddleware");
 
 const router = express.Router();
 
@@ -15,8 +16,8 @@ const upload = multer({
   },
 });
 
-router.post("/scan", upload.single("image"), scanImage);
-router.post("/transcribe", upload.single("audio"), transcribeAudio);
-router.post("/translate", translateText);
+router.post("/scan", authMiddleware, upload.single("image"), scanImage);
+router.post("/transcribe", authMiddleware, upload.single("audio"), transcribeAudio);
+router.post("/translate", authMiddleware, translateText);
 
 module.exports = router;

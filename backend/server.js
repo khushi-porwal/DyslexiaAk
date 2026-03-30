@@ -64,6 +64,7 @@ app.use("/api/working-memory", workingMemoryRoutes);
 app.use("/api/drawings", require("./routes/Drawing/drawingRoutes"));
 app.use("/api/ai", require("./routes/Ai/aiRoutes"));
 app.use("/api/profile", require("./routes/Profile_routes/profileRoutes"));
+app.use("/api/sequencing", require("./routes/Sequencing_routes/sequencingRoutes"));
 app.use(
   "/api/reading-assistant",
   require("./routes/ReadingAssistant_routes/readingRoutes")
