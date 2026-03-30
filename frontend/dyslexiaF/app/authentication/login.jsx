@@ -70,6 +70,9 @@ export default function LoginPreview() {
       if (res.data.refreshToken) {
         await AsyncStorage.setItem("refreshToken", res.data.refreshToken);
       }
+      // Cache basic profile info for prefill
+      await AsyncStorage.setItem("profile_name", name || "");
+      await AsyncStorage.setItem("profile_email", email || "");
       // Clear any cached screening progress from a previous user session
       await AsyncStorage.removeItem("screening-progress");
 

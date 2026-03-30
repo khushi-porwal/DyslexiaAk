@@ -19,6 +19,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import API from "../../api/axios";
 import { ScrollView } from "react-native-gesture-handler";
+import { LinearGradient } from "expo-linear-gradient";
 
 const articles = [
   {
@@ -72,6 +73,7 @@ export default function ReadingAssistantScreen() {
   const [currentChunk, setCurrentChunk] = useState(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [pendingChunk, setPendingChunk] = useState(null);
 
   const baseURL = useMemo(() => API?.defaults?.baseURL || "", []);
   const hasText = useMemo(
@@ -325,6 +327,7 @@ export default function ReadingAssistantScreen() {
     }
     const text = chunks[startIndex];
     setCurrentChunk(startIndex);
+    setPendingChunk(startIndex);
     setIsSpeaking(true);
     Speech.speak(text, {
       rate: 1.0,
@@ -347,29 +350,16 @@ export default function ReadingAssistantScreen() {
   };
 
   const handlePause = () => {
-    try {
-      Speech.pause();
-      setIsPaused(true);
-      setIsSpeaking(false);
-    } catch (e) {
-      setHelperText("Pause not supported on this device.");
-    }
+    Speech.stop();
+    setIsPaused(true);
+    setIsSpeaking(false);
   };
 
   const handleResume = () => {
-    try {
-      Speech.resume();
-      setIsPaused(false);
-      setIsSpeaking(true);
-    } catch (e) {
-      // If resume not supported, restart from current chunk
-      if (currentChunk !== null) {
-        speakChunks(currentChunk);
-        setIsPaused(false);
-      } else {
-        setHelperText("Resume not supported.");
-      }
-    }
+    const resumeIndex =
+      pendingChunk !== null ? pendingChunk : currentChunk !== null ? currentChunk : 0;
+    speakChunks(resumeIndex);
+    setIsPaused(false);
   };
 
   const handleStop = () => {
@@ -377,12 +367,24 @@ export default function ReadingAssistantScreen() {
     setIsSpeaking(false);
     setIsPaused(false);
     setCurrentChunk(null);
+    setPendingChunk(null);
+  };
+
+  const handleSkip = () => {
+    const nextIndex =
+      (pendingChunk !== null ? pendingChunk : currentChunk !== null ? currentChunk : -1) + 1;
+    Speech.stop();
+    speakChunks(nextIndex);
   };
 
   return (
     <SafeAreaView className="flex-1 bg-[#CFA7FF]">
       <StatusBar style="dark" backgroundColor="#CFA7FF" />
 
+      <LinearGradient
+        colors={["#D8B7FF", "#CFA7FF"]}
+        style={{ flex: 1 }}
+      >
       <View className="flex-1 px-5 pt-4">
         <View className="flex-row justify-between items-center mb-2">
           <TouchableOpacity
@@ -401,7 +403,7 @@ export default function ReadingAssistantScreen() {
           Reading Assistant
         </Text>
 
-        <View className="mt-5 bg-white rounded-2xl px-4 py-3 flex-row items-center shadow-sm">
+        <View className="mt-5 bg-white/95 rounded-3xl px-4 py-3 flex-row items-center shadow-lg">
           <TextInput
             className="flex-1 text-base text-[#2f0a44]"
             placeholder="Typing"
@@ -426,39 +428,39 @@ export default function ReadingAssistantScreen() {
             className="flex-1 mx-1"
             onPress={pickImageAndScan}
           >
-            <View style={purpleButton}>
+            <LinearGradient colors={["#B87BFF", "#7D3BCF"]} style={purpleButton}>
               <MaterialCommunityIcons
                 name="camera-enhance"
                 size={26}
                 color="#fff"
               />
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
             className="flex-1 mx-1"
             onPress={handleTranslate}
           >
-            <View style={purpleButton}>
+            <LinearGradient colors={["#7BC5FF", "#7D3BCF"]} style={purpleButton}>
               <MaterialCommunityIcons
                 name="translate"
                 size={26}
                 color="#fff"
               />
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
             className="flex-1 mx-1"
             onPress={toggleRecording}
           >
-            <View style={purpleButton}>
+            <LinearGradient colors={["#FF9A9E", "#7D3BCF"]} style={purpleButton}>
               <Ionicons
                 name={recording ? "stop-circle" : "mic"}
                 size={26}
                 color="#fff"
               />
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
@@ -476,7 +478,7 @@ export default function ReadingAssistantScreen() {
         ) : null}
 
         {/* Extracted text area */}
-        <View className="mt-4 bg-white rounded-2xl p-3 shadow-sm">
+        <View className="mt-4 bg-white/95 rounded-3xl p-3 shadow-lg">
           <Text className="text-base font-semibold text-[#2f0a44] mb-2">
             Extracted Text
           </Text>
@@ -533,7 +535,7 @@ export default function ReadingAssistantScreen() {
 
         {/* Reading highlight list */}
         {hasText ? (
-          <View className="mt-3 bg-white rounded-2xl p-3 shadow-sm">
+          <View className="mt-3 bg-white/95 rounded-3xl p-3 shadow-lg">
             <Text className="text-base font-semibold text-[#2f0a44] mb-2">
               Reading Progress
             </Text>
@@ -587,6 +589,11 @@ export default function ReadingAssistantScreen() {
                   <Ionicons name="play-forward" size={22} color="#fff" />
                 </View>
               </TouchableOpacity>
+              <TouchableOpacity className="flex-1" onPress={handleSkip}>
+                <View style={purpleButton}>
+                  <Ionicons name="play-skip-forward" size={22} color="#fff" />
+                </View>
+              </TouchableOpacity>
               <TouchableOpacity className="flex-1" onPress={handleStop}>
                 <View style={purpleButton}>
                   <Ionicons name="stop" size={22} color="#fff" />
@@ -610,6 +617,7 @@ export default function ReadingAssistantScreen() {
           </ScrollView>
         </View>
       </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 }
