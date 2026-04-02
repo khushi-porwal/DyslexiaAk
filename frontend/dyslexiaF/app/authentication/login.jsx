@@ -16,6 +16,11 @@ import { useRouter } from "expo-router";
 
 export default function LoginPreview() {
   const router = useRouter();
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    }
+  };
   // 🔹 STATES
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -102,7 +107,7 @@ export default function LoginPreview() {
       keyboardShouldPersistTaps="handled"
     >
       {/* Back Arrow */}
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={handleBack}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
 

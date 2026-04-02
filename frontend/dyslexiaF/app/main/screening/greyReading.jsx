@@ -3,21 +3,17 @@ import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-import API from "../../api/axios"
+import { LinearGradient } from "expo-linear-gradient";
+import API from "../../api/axios";
 import { saveScreeningResult } from "../../../constants/progressStorage";
+import { useRouter } from "expo-router";
 export default function GreyReadingScreen({ navigation }) {
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
-  const [token, setToken] = useState(null);
 
-  useEffect(() => {
-    const loadToken = async () => {
-      const storedToken = await AsyncStorage.getItem("token");
-      setToken(storedToken);
-    };
-    loadToken();
-  }, []);
-
+  const router = useRouter();
+  
+   
   useEffect(() => {
     let interval = null;
 
@@ -38,85 +34,96 @@ export default function GreyReadingScreen({ navigation }) {
 
   const { m, s } = formatTime(seconds);
 
-const handleFinish = async () => {
-  try {
-    const storedToken = await AsyncStorage.getItem("token");
+  const handleFinish = async () => {
+    try {
+      const storedToken = await AsyncStorage.getItem("token");
 
-    if (!storedToken) {
-      console.log("Token expired or missing — please login again");
-      return;
-    }
-
-    if (seconds === 0) return;
-
-    setIsRunning(false);
-
-    const res = await API.post(
-      "/api/history",
-      {
-        activityType: "grey_reading",
-        duration: seconds,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
+      if (!storedToken) {
+        console.log("Token missing — login again");
+        return;
       }
-    );
 
-    console.log("History saved:", res.data);
+      if (seconds === 0) return;
 
-    await saveScreeningResult("grey_reading", {
-      duration: seconds,
-    });
-  } catch (error) {
-    console.log(
-      "History API error:",
-      error.response?.data || error.message
-    );
-  }
-};
+      setIsRunning(false);
+
+      const res = await API.post(
+        "/api/history",
+        {
+          activityType: "grey_reading",
+          duration: seconds,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+          },
+        }
+      );
+
+      console.log("Saved:", res.data);
+
+      await saveScreeningResult("grey_reading", {
+        duration: seconds,
+      });
+    } catch (error) {
+      console.log("API error:", error.response?.data || error.message);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-[#DDA6F6]">
-
-      {/* ✅ KEY FIX → ScrollView */}
       <ScrollView
         contentContainerStyle={{
           alignItems: "center",
-          paddingBottom: 40,  // ✅ Prevent bottom cut
+          paddingBottom: 40,
         }}
         showsVerticalScrollIndicator={false}
       >
-
         <View className="w-full px-5 pt-4">
 
-          {/* Header */}
-          <View className="w-full flex-row justify-between items-center">
+          {/* 🔥 HEADER */}
+          <View className="flex-row justify-between items-center">
+            
+            {/* Back */}
             <TouchableOpacity
-              className="w-10 h-10 rounded-full items-center justify-center"
-              onPress={() => navigation?.goBack?.()}
+             onPress={()=>router.back("/index")}  activeOpacity={0.8}
             >
-              <Ionicons name="arrow-back" size={22} color="#000" />
+              <LinearGradient
+                colors={["#FFFFFF", "#EDE5FF"]}
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 24,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  elevation: 6,
+                }}
+              >
+                <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+              </LinearGradient>
             </TouchableOpacity>
 
-            <TouchableOpacity className="w-10 h-10 rounded-full items-center justify-center">
-              <Ionicons name="person" size={22} color="#000" />
+            {/* Profile */}
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Profile")}
+            >
+              <Ionicons name="person" size={30} color="purple" />
             </TouchableOpacity>
+
           </View>
-
-          {/* Title */}
-          <Text className="text-[26px] font-extrabold text-black text-center mt-4">
-            Grey Oral Reading{"\n"}Test
-          </Text>
         </View>
 
-        {/* Illustration */}
+        {/* Title */}
+        <Text className="text-2xl font-bold text-black text-center mt-4">
+          Grey Oral Test
+        </Text>
+
+        {/* Image */}
         <View className="mt-8 w-[85%] h-[190px] items-center justify-center">
           <Image
             source={require("../../../assets/images/girl.png")}
-            className="w-[140px] h-[140px]"
-            resizeMode="contain"
+            className="w-50 h-30"
+    resizeMode="contain"
           />
         </View>
 
@@ -144,9 +151,9 @@ const handleFinish = async () => {
         {/* Timer */}
         <View className="mt-5 w-[200px] h-[60px] bg-[#EED9F7] rounded-[10px] items-center justify-center">
           <View className="w-[160px] h-[40px] bg-white rounded-md border border-[#CFA5E3] flex-row items-center justify-center">
-            <Text className="text-[18px] font-extrabold text-black">{m}</Text>
-            <Text className="text-[18px] font-extrabold text-black"> : </Text>
-            <Text className="text-[18px] font-extrabold text-black">{s}</Text>
+            <Text className="text-[18px] font-extrabold">{m}</Text>
+            <Text className="text-[18px] font-extrabold"> : </Text>
+            <Text className="text-[18px] font-extrabold">{s}</Text>
           </View>
         </View>
 
@@ -157,7 +164,7 @@ const handleFinish = async () => {
         {/* Buttons */}
         <View className="flex-row mt-4 space-x-3">
           <TouchableOpacity
-            className="bg-black px-6 py-3 rounded-xl"
+            className="bg-black px-6 py-3 rounded-xl mr-3"
             onPress={() => setIsRunning((prev) => !prev)}
           >
             <Text className="text-white font-bold">
@@ -176,7 +183,7 @@ const handleFinish = async () => {
           </TouchableOpacity>
         </View>
 
-        {/* ✅ Finish Button ALWAYS visible */}
+        {/* Finish */}
         <TouchableOpacity
           className="bg-black px-10 py-3 rounded-xl mt-6"
           onPress={handleFinish}

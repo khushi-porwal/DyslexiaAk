@@ -11,8 +11,9 @@ import {
 import axios from "../../api/axios";
 import { Ionicons } from "@expo/vector-icons";
 import { saveScreeningResult } from "../../../constants/progressStorage";
-
-
+import { TouchableOpacity } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 
 export default function PhonologicalTest() {
   // ✅ IMPORTANT:
@@ -28,6 +29,8 @@ export default function PhonologicalTest() {
   const rhymeWords = ["cat", "sun", "hat", "dog", "mat", "pen"];
   const [selectedWords, setSelectedWords] = useState([]);
 
+  const router = useRouter();
+  
   const toggleWord = (word) => {
     if (selectedWords.includes(word)) {
       setSelectedWords(selectedWords.filter((w) => w !== word));
@@ -211,41 +214,43 @@ export default function PhonologicalTest() {
   return (
     <ScrollView className="flex-1 bg-pink-200">
       {/* ✅ TOP HEADER (Back + Title + Profile) */}
-      <View className="px-5 pt-10 pb-4">
-        <View className="flex-row items-center justify-between">
-          {/* ✅ Back Button */}
-          <Pressable
-            onPress={() => {
-              if (step === 1) {
-                Alert.alert("Exit", "You are on the first step.");
-              } else {
-                goBack();
-              }
-            }}
-            className="mb-5 items-center justify-center border border-pink-200"
-          >
-            <Ionicons name="arrow-back" size={22} color="#6b21a8" />
-          </Pressable>
+       <View className="px-5 pt-10 pb-4">
+        <View className="flex-row justify-between items-center">
+          {/* Back */}
+          <TouchableOpacity onPress={()=>router.back("/index")} activeOpacity={0.8}>
+            <LinearGradient
+              colors={["#FFFFFF", "#EDE5FF"]}
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 24,
+                alignItems: "center",
+                justifyContent: "center",
+                elevation: 6,
+              }}
+            >
+              <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+            </LinearGradient>
+          </TouchableOpacity>
 
-          {/* ✅ Title */}
-          <View className="items-center">
-            <Text className="text-xl font-extrabold text-purple-900">
-              Phonological Test
-            </Text>
-            <Text className="text-purple-700 text-xs font-semibold">
-              Progress: {progressText} ({progressPercent}%)
-            </Text>
-          </View>
+          {/* Title */}
+          
 
-          {/* ✅ Profile Icon */}
-          <Pressable
-            onPress={() => Alert.alert("Profile", "Profile button clicked")}
-            className="mb-5 items-center justify-center border border-pink-200"
-          >
-            <Ionicons name="person" size={22} color="#6b21a8" />
-          </Pressable>
+          {/* Profile */}
+          <TouchableOpacity>
+            <Ionicons name="person" size={30} color="purple" />
+          </TouchableOpacity>
         </View>
 
+
+        <View className="items-center">
+            <Text className="text-2xl font-extrabold text-purple-900">
+              Phonological Test
+            </Text>
+            <Text className="text-purple-700 text-lg font-semibold">
+              {progressText} ({progressPercent}%)
+            </Text>
+          </View>
         {/* ✅ Progress Bar */}
         <View className="w-full h-3 bg-pink-100 rounded-full mt-4 overflow-hidden">
           <View
@@ -255,13 +260,14 @@ export default function PhonologicalTest() {
         </View>
       </View>
 
+      
       {/* ✅ Image */}
       <View className="px-5 mb-6">
         <View className="items-center">
           <Image
             source={require("../../../assets/images/phonological.png")}
-            className="w-44 h-44"
-            resizeMode="contain"
+            className="w-50 h-30"
+    resizeMode="contain"
           />
           <Text className="mt-2 text-gray-600 text-center">
             Answer each task carefully ✅

@@ -1,7 +1,8 @@
 import { View, Text, TouchableOpacity, Image, Platform } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { getScreeningProgress } from "../../../constants/progressStorage";
 
@@ -39,38 +40,62 @@ export default function ScreeningTest() {
       };
     }, [])
   );
+  
 
   return (
     <View className="flex-1 bg-[#9CD67D] px-5 pt-12">
-      
+
       {/* Header */}
-      <View className="flex-row items-center justify-between mb-6">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1F2937" />
+      <View className="flex-row justify-between items-center">
+        <TouchableOpacity onPress={()=>router.back("/HomeDashboard/index")} activeOpacity={0.8}>
+          <LinearGradient
+            colors={["#FFFFFF", "#EDE5FF"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 24,
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#3A175A",
+              shadowOpacity: 0.18,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 6,
+            }}
+          >
+            <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+          </LinearGradient>
         </TouchableOpacity>
 
-        <Text className="text-xl font-bold text-gray-800">
-          Screening Test
-        </Text>
 
-        <TouchableOpacity>
-          <Ionicons name="person-circle-outline" size={28} color="#1F2937" />
+        <TouchableOpacity onPress={() => router.push("/profile")}>
+          <Ionicons name="person" size={30} color="green" />
         </TouchableOpacity>
       </View>
 
+      <Text className="text-2xl font-bold text-center text-gray-800">
+        Screening Test
+      </Text>
+
+
+
       {/* Owl Section */}
-      <View className="rounded-3xl   items-center">
+      <View className="rounded-3xl items-center justify-center">
         <Image
           source={require("../../../assets/images/Owls.png")}
-          className="w-64 h-28"
+          className="w-[350px] h-[260px]"
           resizeMode="contain"
         />
       </View>
-      <View className="items-center   mb-8">
-        <Image
-          source={require("../../../assets/images/lines.png")}
-        />
-      </View>
+      <View className="items-center mt-[-40] mb-4">
+  <Image
+    source={require("../../../assets/images/lines.png")}
+    className="w-50 h-30"
+    resizeMode="contain"
+  />
+</View>
 
       {/* Test Cards - Row 1 */}
       <View className="flex-row justify-between mb-6">

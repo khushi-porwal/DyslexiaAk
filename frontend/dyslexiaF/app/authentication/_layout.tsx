@@ -3,8 +3,9 @@ import { Stack } from "expo-router";
 export default function AuthLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="authentication/login" />
-      <Stack.Screen name="authentication/signup" />
+      {/* child routes are relative to /authentication */}
+      <Stack.Screen name="login" />
+      <Stack.Screen name="signup" />
     </Stack>
   );
 }

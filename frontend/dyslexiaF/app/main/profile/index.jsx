@@ -33,7 +33,7 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get("http://192.168.0.126:5000/api/profile");
+      const res = await axios.get("http://192.168.0.93:5000/api/profile");
       setUser(res.data);
     } catch (err) {
       console.log("Profile fetch failed:", err.message);

@@ -6,6 +6,11 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 export default function SignUpScreen() {
   const router = useRouter();
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    }
+  };
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +44,7 @@ export default function SignUpScreen() {
   return (
     <View className="flex-1 bg-[#DC9AF0] px-5">
 
-      <TouchableOpacity className="top-10"onPress={() => router.back('')}>
+      <TouchableOpacity className="top-10" onPress={handleBack}>
       <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
       {/* Header */}
