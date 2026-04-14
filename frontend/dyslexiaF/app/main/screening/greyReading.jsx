@@ -105,7 +105,7 @@ export default function GreyReadingScreen({ navigation }) {
 
             {/* Profile */}
             <TouchableOpacity
-              onPress={() => navigation.navigate("Profile")}
+              onPress={() => router.push("/profile/index")}
             >
               <Ionicons name="person" size={30} color="purple" />
             </TouchableOpacity>
