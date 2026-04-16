@@ -14,6 +14,7 @@ import ViewShot from "react-native-view-shot";
 import axios from "axios";
 import { getBackendUrl } from "../../../constants/api";
 import { saveScreeningResult } from "../../../constants/progressStorage";
+import { Ionicons } from "@expo/vector-icons";
 
 const CANVAS_SIZE = 280;
 
@@ -104,15 +105,32 @@ export default function RapidDrawing() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-green-300">
-
-      {/* HEADER */}
-
-      <View className="bg-green-700 py-4 rounded-b-3xl">
-        <Text className="text-center text-xl font-bold text-white">
-          Rapid Automated Writing
+    <View className="flex-1 bg-[#E6B3F7]">
+      {/* HEADER (fixed) */}
+      <View className="px-4 pt-8 pb-2">
+        <View className="flex-row items-center justify-between mb-2">
+          <Pressable
+            onPress={() => {}}
+            hitSlop={12}
+            className="w-11 h-11 rounded-full bg-white shadow-md items-center justify-center"
+          >
+            <Ionicons name="chevron-back" size={26} color="#4A0C73" />
+          </Pressable>
+          <View className="flex-1" />
+          <Pressable onPress={() => {}} hitSlop={12}>
+            <Ionicons name="person" size={27} color="#7A0F75" />
+          </Pressable>
+        </View>
+        <Text className="text-2xl font-extrabold text-[#0f172a] text-center mt-0 mb-1">
+          Rapid Automation
         </Text>
       </View>
+
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+      >
 
       {/* TARGET IMAGE */}
 
@@ -260,6 +278,7 @@ export default function RapidDrawing() {
           </Text>
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }

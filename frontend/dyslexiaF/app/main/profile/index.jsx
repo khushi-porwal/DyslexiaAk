@@ -1,10 +1,11 @@
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import API from "../../api/axios";
+import { useFocusEffect } from "@react-navigation/native";
 
 
 
@@ -15,7 +16,6 @@ export default function Profile() {
   "https://cdn-icons-png.flaticon.com/512/616/616408.png";
   
 
-
   const [user, setUser] = useState({
     username: "",
     email: "",
@@ -24,26 +24,61 @@ export default function Profile() {
     bio: "",
     avatar: "",
   });
+  const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   
 
   useEffect(() => {
+    preloadCached();
     fetchProfile();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProfile();
+    }, [])
+  );
+
+  const preloadCached = async () => {
+    const cachedName = await AsyncStorage.getItem("profile_name");
+    const cachedEmail = await AsyncStorage.getItem("profile_email");
+    setUser((prev) => ({
+      ...prev,
+      username: cachedName || prev.username,
+      email: cachedEmail || prev.email,
+    }));
+  };
 
   const fetchProfile = async () => {
     try {
       const res = await axios.get("http://192.168.0.93:5000/api/profile");
       setUser(res.data);
+      setLoading(true);
+      const token = await AsyncStorage.getItem("token");
+      const res = await API.get("/api/profile", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (res.data) setUser(res.data);
     } catch (err) {
       console.log("Profile fetch failed:", err.message);
     }
+    setLoading(false);
   };
 
   const saveProfile = async () => {
-    await axios.put("http://192.168.0.126:5000/api/profile", user);
-    alert("Profile updated successfully");
-
+    try {
+      const token = await AsyncStorage.getItem("token");
+      await API.put("/api/profile", user, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      alert("Profile updated successfully");
+      setEditMode(false);
+      await AsyncStorage.setItem("profile_name", user.username || "");
+      await AsyncStorage.setItem("profile_email", user.email || "");
+    } catch (err) {
+      alert("Update failed");
+    }
   };
 
   
@@ -132,15 +167,17 @@ const pickImage = async () => {
   }
 
   try {
-    const res = await axios.put(
-      "http://192.168.0.126:5000/api/profile/avatar",
+    const token = await AsyncStorage.getItem("token");
+    const res = await API.put(
+      "/api/profile/avatar",
       formData,
       {
         headers: {
           "Content-Type": "multipart/form-data",
           Accept: "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        transformRequest: (data, headers) => data,
+        transformRequest: (data) => data,
       }
     );
     console.log("✅ Upload Success:", res.data);
@@ -175,6 +212,27 @@ const pickImage = async () => {
      </View>
 
 
+      {/* Completion badge */}
+      <View className="mt-4 items-center">
+        {["username","email","phone","birthday","bio"].every((k)=>user[k]) ? (
+          <Text className="text-green-800 font-semibold">Profile complete</Text>
+        ) : (
+          <Text className="text-orange-700 font-semibold">Complete your profile</Text>
+        )}
+      </View>
+
+      {/* Edit toggle */}
+      <View className="mt-4 items-center">
+        <TouchableOpacity
+          className="bg-white px-4 py-2 rounded-full border border-purple-500"
+          onPress={() => setEditMode((e) => !e)}
+        >
+          <Text className="text-purple-700 font-semibold">
+            {editMode ? "Cancel Edit" : "Edit Profile"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Inputs */}
       {[
         { label: "Username", key: "username" },
@@ -190,20 +248,23 @@ const pickImage = async () => {
             onChangeText={(text) =>
               setUser({ ...user, [field.key]: text })
             }
-            className="bg-white rounded-full px-4 py-3"
+            editable={editMode}
+            className={`bg-white rounded-full px-4 py-3 ${editMode ? "" : "opacity-60"}`}
           />
         </View>
       ))}
 
       {/* Save Button */}
-      <TouchableOpacity
-        onPress={saveProfile}
-        className="bg-purple-700 py-4 rounded-full mt-8"
-      >
-        <Text className="text-white text-center font-bold">
-          Save Your Changes
-        </Text>
-      </TouchableOpacity>
+      {editMode ? (
+        <TouchableOpacity
+          onPress={saveProfile}
+          className="bg-purple-700 py-4 rounded-full mt-8"
+        >
+          <Text className="text-white text-center font-bold">
+            Save Your Changes
+          </Text>
+        </TouchableOpacity>
+      ) : null}
 
     </ScrollView>
   );

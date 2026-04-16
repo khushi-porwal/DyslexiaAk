@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import API from "../api/axios";
 import {
   View,
@@ -16,77 +16,46 @@ import { useRouter } from "expo-router";
 
 export default function LoginPreview() {
   const router = useRouter();
-  const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    }
-  };
+ 
   // 🔹 STATES
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🔹 BASIC VALIDATION
   const validateInputs = () => {
-    if (!name || !email || !password) {
-      Alert.alert("Error", "All fields are required");
+    if (!email || !password) {
+      Alert.alert("Error", "Email & password are required");
       return false;
     }
-
     if (!email.includes("@")) {
       Alert.alert("Error", "Enter a valid email");
       return false;
     }
-
     if (password.length < 6) {
       Alert.alert("Error", "Password must be at least 6 characters");
       return false;
     }
-
     return true;
   };
 
-  // 🔹 LOGIN HANDLER (BACKEND READY)
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Email & password are required");
-      return;
-    }
-
-    // Optional: Use the validation function
-    if (!validateInputs()) {
-      return;
-    }
-
+    if (!validateInputs()) return;
     setLoading(true);
-
     try {
-      const res = await API.post("/api/auth/login", {
-        email,
-        password,
-      });
-
-      console.log("Login Success:", res.data);
-
-      // Store tokens
+      const res = await API.post("/api/auth/login", { email, password });
       await AsyncStorage.setItem("token", res.data.token);
       await AsyncStorage.setItem("userEmail", email.toLowerCase());
       
       if (res.data.refreshToken) {
         await AsyncStorage.setItem("refreshToken", res.data.refreshToken);
       }
-      // Clear any cached screening progress from a previous user session
+      await AsyncStorage.setItem("profile_email", email || "");
       await AsyncStorage.removeItem("screening-progress");
-
       Alert.alert("Success", "Logged in successfully!");
-      
-      // Navigate to home
       router.push("/main/HomeDashboard");
-      
     } catch (err) {
       console.log("Login Error:", err?.response?.data || err?.message || err);
-      
       Alert.alert(
         "Login Failed",
         err?.response?.data?.message || err?.message || "Something went wrong"
@@ -99,19 +68,16 @@ export default function LoginPreview() {
   return (
     <ScrollView
       style={{ backgroundColor: "#E6B3F7" }}
-      contentContainerStyle={{
-        paddingHorizontal: 22,
-        paddingTop: 20,
-      }}
+      contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 48 }}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
       {/* Back Arrow */}
-      <TouchableOpacity onPress={handleBack}>
+     
+      <TouchableOpacity onPress={() => router.back()}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
 
-      {/* App Title */}
       <Text className="text-3xl text-center font-bold text-black mt-2">
         Dyslexia Companion
       </Text>
@@ -119,29 +85,16 @@ export default function LoginPreview() {
         Empowering Every Learner
       </Text>
 
-      {/* Fox */}
-      <View className="items-center ">
+      <View className="items-center mt-2 mb-0">
         <Image
           source={require("../../assets/images/Fox.png")}
-          className="w-40 h-40"
+          style={{ width: 260, height: 260 }}
+          resizeMode="contain"
         />
       </View>
 
-      {/* Login */}
-      <Text className="text-3xl font-semibold text-center -mt-6 ">
-        Login
-      </Text>
+      <Text className="text-3xl font-semibold text-center mt-1 ">Login</Text>
 
-      {/* Name */}
-      <Text className="text-sm mb-1">Name</Text>
-      <TextInput
-        value={name}
-        onChangeText={setName}
-        className="bg-white rounded-full px-5 py-3 mb-3"
-        placeholder="Enter your name"
-      />
-
-      {/* Email */}
       <Text className="text-sm mb-1">Email</Text>
       <TextInput
         value={email}
@@ -152,7 +105,6 @@ export default function LoginPreview() {
         placeholder="Enter your email"
       />
 
-      {/* Password */}
       <Text className="text-sm mb-1">Password</Text>
       <TextInput
         value={password}
@@ -162,7 +114,6 @@ export default function LoginPreview() {
         placeholder="Enter your password"
       />
 
-      {/* Login Button */}
       <View className="items-center mt-2">
         <TouchableOpacity
           onPress={handleLogin}
@@ -172,22 +123,15 @@ export default function LoginPreview() {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text className="text-white  font-semibold text-lg">
-              Log In
-            </Text>
+            <Text className="text-white  font-semibold text-lg">Log In</Text>
           )}
         </TouchableOpacity>
       </View>
 
-      {/* Signup */}
       <View className="flex-row justify-center mt-4">
-        <Text className="text-black text-sm">
-          Don't have an account?
-        </Text>
+        <Text className="text-black text-sm">Don't have an account?</Text>
         <TouchableOpacity onPress={() => router.push("/authentication/signup")}>
-          <Text className="text-purple-800 font-semibold text-sm ml-1">
-            Sign Up
-          </Text>
+          <Text className="text-purple-800 font-semibold text-sm ml-1">Sign Up</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

@@ -19,6 +19,8 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import API from "../../api/axios";
 import { ScrollView } from "react-native-gesture-handler";
+import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const articles = [
   {
@@ -67,22 +69,36 @@ export default function ReadingAssistantScreen() {
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(null);
   const [voiceStatus, setVoiceStatus] = useState("");
-  const [scannedTexts, setScannedTexts] = useState([]);
+  const [extractedText, setExtractedText] = useState("");
   const [chunks, setChunks] = useState([]);
   const [currentChunk, setCurrentChunk] = useState(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [pendingChunk, setPendingChunk] = useState(null);
 
   const baseURL = useMemo(() => API?.defaults?.baseURL || "", []);
   const hasText = useMemo(
-    () => scannedTexts.length > 0 || inputText.trim().length > 0,
-    [scannedTexts.length, inputText]
+    () => extractedText.trim().length > 0,
+    [extractedText]
   );
 
   const speakText = (text) => {
     if (!text) return;
     Speech.stop();
     Speech.speak(text, { rate: 1.0, pitch: 1.0 });
+  };
+
+  const getAuthHeader = async () => {
+    const token = await AsyncStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  const updateExtracted = (newChunk) => {
+    const updated = extractedText ? `${extractedText}\n${newChunk}` : newChunk;
+    setExtractedText(updated);
+    setChunks(chunkText(updated));
+    setCurrentChunk(null);
+    setPendingChunk(null);
   };
 
   const pickImageAndScan = async () => {
@@ -145,6 +161,7 @@ export default function ReadingAssistantScreen() {
         `${baseURL}/api/reading-assistant/scan`,
         {
           method: "POST",
+          headers: await getAuthHeader(),
           body: formData,
         }
       );
@@ -152,15 +169,8 @@ export default function ReadingAssistantScreen() {
       const data = await response.json();
 
       if (data?.text) {
-        setInputText((prev) => {
-          const updated = prev ? `${prev}\n${data.text}` : data.text;
-          setChunks(chunkText(updated));
-          setCurrentChunk(null);
-          return updated;
-        });
-        setScannedTexts((prev) => [data.text, ...prev]);
+        updateExtracted(data.text);
         setHelperText("Image scanned successfully.");
-        speakText(data.text);
       } else {
         setHelperText(data?.message || "Could not read text.");
       }
@@ -228,20 +238,15 @@ export default function ReadingAssistantScreen() {
         `${baseURL}/api/reading-assistant/transcribe`,
         {
           method: "POST",
+          headers: await getAuthHeader(),
           body: formData,
         }
       );
 
       const data = await response.json();
       if (data?.text) {
-        setInputText((prev) => {
-          const updated = prev ? `${prev} ${data.text}` : data.text;
-          setChunks(chunkText(updated));
-          setCurrentChunk(null);
-          return updated;
-        });
+        updateExtracted(data.text);
         setHelperText("Voice transcribed.");
-        setScannedTexts((prev) => [data.text, ...prev]);
       } else {
         setHelperText(data?.message || "Could not transcribe audio.");
       }
@@ -254,8 +259,9 @@ export default function ReadingAssistantScreen() {
   };
 
   const handleTranslate = async () => {
-    if (!inputText.trim()) {
-      setHelperText("Type or capture text first.");
+    const textToTranslate = extractedText.trim() || inputText.trim();
+    if (!textToTranslate) {
+      setHelperText("Add some text first.");
       return;
     }
 
@@ -264,12 +270,15 @@ export default function ReadingAssistantScreen() {
       setHelperText("Translating to Hindi...");
       const { data } = await API.post(
         "/api/reading-assistant/translate",
-        { text: inputText, targetLang: "hi" }
+        { text: textToTranslate, targetLang: "hi" },
+        { headers: await getAuthHeader() }
       );
 
       if (data?.text) {
         setHelperText("Translated to Hindi.");
-        setInputText(data.text);
+        setExtractedText(data.text);
+        setChunks(chunkText(data.text));
+        setCurrentChunk(null);
       } else {
         setHelperText(data?.message || "Translation issue.");
       }
@@ -325,6 +334,7 @@ export default function ReadingAssistantScreen() {
     }
     const text = chunks[startIndex];
     setCurrentChunk(startIndex);
+    setPendingChunk(startIndex);
     setIsSpeaking(true);
     Speech.speak(text, {
       rate: 1.0,
@@ -335,41 +345,29 @@ export default function ReadingAssistantScreen() {
   };
 
   const handleStartReading = () => {
-    if (!inputText.trim()) {
+    const text = extractedText.trim() || inputText.trim();
+    if (!text) {
       setHelperText("Add some text first to read aloud.");
       return;
     }
     Speech.stop();
-    const newChunks = chunkText(inputText);
+    const newChunks = chunkText(text);
     setChunks(newChunks);
     setIsPaused(false);
     speakChunks(0);
   };
 
   const handlePause = () => {
-    try {
-      Speech.pause();
-      setIsPaused(true);
-      setIsSpeaking(false);
-    } catch (e) {
-      setHelperText("Pause not supported on this device.");
-    }
+    Speech.stop();
+    setIsPaused(true);
+    setIsSpeaking(false);
   };
 
   const handleResume = () => {
-    try {
-      Speech.resume();
-      setIsPaused(false);
-      setIsSpeaking(true);
-    } catch (e) {
-      // If resume not supported, restart from current chunk
-      if (currentChunk !== null) {
-        speakChunks(currentChunk);
-        setIsPaused(false);
-      } else {
-        setHelperText("Resume not supported.");
-      }
-    }
+    const resumeIndex =
+      pendingChunk !== null ? pendingChunk : currentChunk !== null ? currentChunk : 0;
+    speakChunks(resumeIndex);
+    setIsPaused(false);
   };
 
   const handleStop = () => {
@@ -377,12 +375,24 @@ export default function ReadingAssistantScreen() {
     setIsSpeaking(false);
     setIsPaused(false);
     setCurrentChunk(null);
+    setPendingChunk(null);
+  };
+
+  const handleSkip = () => {
+    const nextIndex =
+      (pendingChunk !== null ? pendingChunk : currentChunk !== null ? currentChunk : -1) + 1;
+    Speech.stop();
+    speakChunks(nextIndex);
   };
 
   return (
     <SafeAreaView className="flex-1 bg-[#CFA7FF]">
       <StatusBar style="dark" backgroundColor="#CFA7FF" />
 
+      <LinearGradient
+        colors={["#D8B7FF", "#CFA7FF"]}
+        style={{ flex: 1 }}
+      >
       <View className="flex-1 px-5 pt-4">
         <View className="flex-row justify-between items-center mb-2">
           <TouchableOpacity
@@ -401,7 +411,7 @@ export default function ReadingAssistantScreen() {
           Reading Assistant
         </Text>
 
-        <View className="mt-5 bg-white rounded-2xl px-4 py-3 flex-row items-center shadow-sm">
+        <View className="mt-5 bg-white/95 rounded-3xl px-4 py-3 flex-row items-center shadow-lg">
           <TextInput
             className="flex-1 text-base text-[#2f0a44]"
             placeholder="Typing"
@@ -426,39 +436,39 @@ export default function ReadingAssistantScreen() {
             className="flex-1 mx-1"
             onPress={pickImageAndScan}
           >
-            <View style={purpleButton}>
+            <LinearGradient colors={["#B87BFF", "#7D3BCF"]} style={purpleButton}>
               <MaterialCommunityIcons
                 name="camera-enhance"
                 size={26}
                 color="#fff"
               />
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
             className="flex-1 mx-1"
             onPress={handleTranslate}
           >
-            <View style={purpleButton}>
+            <LinearGradient colors={["#7BC5FF", "#7D3BCF"]} style={purpleButton}>
               <MaterialCommunityIcons
                 name="translate"
                 size={26}
                 color="#fff"
               />
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
             className="flex-1 mx-1"
             onPress={toggleRecording}
           >
-            <View style={purpleButton}>
+            <LinearGradient colors={["#FF9A9E", "#7D3BCF"]} style={purpleButton}>
               <Ionicons
                 name={recording ? "stop-circle" : "mic"}
                 size={26}
                 color="#fff"
               />
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
@@ -476,11 +486,11 @@ export default function ReadingAssistantScreen() {
         ) : null}
 
         {/* Extracted text area */}
-        <View className="mt-4 bg-white rounded-2xl p-3 shadow-sm">
+        <View className="mt-4 bg-white/95 rounded-3xl p-3 shadow-lg">
           <Text className="text-base font-semibold text-[#2f0a44] mb-2">
             Extracted Text
           </Text>
-          {scannedTexts.length === 0 && chunks.length === 0 ? (
+          {(!extractedText && chunks.length === 0) ? (
             <Text className="text-sm text-[#6b4a99]">
               Scan from camera or gallery to see text here.
             </Text>
@@ -491,7 +501,7 @@ export default function ReadingAssistantScreen() {
                 contentContainerStyle={{ paddingBottom: 6 }}
                 showsVerticalScrollIndicator={true}
               >
-                {(chunks.length ? chunks : scannedTexts).map((t, idx) => (
+                {(chunks.length ? chunks : extractedText.split(/\n+/))?.map((t, idx) => (
                   <View
                     key={`${idx}-${t.slice(0, 8)}`}
                     className="mb-2"
@@ -514,13 +524,27 @@ export default function ReadingAssistantScreen() {
                 ))}
               </ScrollView>
 
-              <View className="ml-2 justify-start items-center space-y-2">
+              <View className="ml-2 justify-between items-center py-2">
                 <TouchableOpacity onPress={handleStartReading}>
                   <View style={sideButton}>
                     <Ionicons name="play" size={18} color="#fff" />
                   </View>
                 </TouchableOpacity>
-                
+                <TouchableOpacity onPress={handlePause}>
+                  <View style={sideButton}>
+                    <Ionicons name="pause" size={18} color="#fff" />
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleResume}>
+                  <View style={sideButton}>
+                    <Ionicons name="play-forward" size={18} color="#fff" />
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleSkip}>
+                  <View style={sideButton}>
+                    <Ionicons name="play-skip-forward" size={18} color="#fff" />
+                  </View>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={handleStop}>
                   <View style={sideButton}>
                     <Ionicons name="stop" size={18} color="#fff" />
@@ -530,72 +554,6 @@ export default function ReadingAssistantScreen() {
             </View>
           )}
         </View>
-
-        {/* Reading highlight list */}
-        {hasText ? (
-          <View className="mt-3 bg-white rounded-2xl p-3 shadow-sm">
-            <Text className="text-base font-semibold text-[#2f0a44] mb-2">
-              Reading Progress
-            </Text>
-            {chunks.length > 0 ? (
-              <ScrollView
-                style={{ maxHeight: 140 }}
-                showsVerticalScrollIndicator={true}
-              >
-                {chunks.map((c, idx) => (
-                  <View
-                    key={`${idx}-${c.slice(0, 8)}`}
-                    className="mb-2"
-                    style={{
-                      padding: 6,
-                      borderRadius: 8,
-                      backgroundColor:
-                        currentChunk === idx ? "#E9D7FF" : "transparent",
-                    }}
-                  >
-                    <Text
-                      className="text-sm text-[#2f0a44]"
-                      style={{
-                        fontWeight: currentChunk === idx ? "700" : "400",
-                      }}
-                    >
-                      {c}
-                    </Text>
-                  </View>
-                ))}
-              </ScrollView>
-            ) : (
-              <Text className="text-sm text-[#6b4a99]">
-                Tap play to start reading and see highlights.
-              </Text>
-            )}
-
-            {/* Post-scan/playback controls */}
-            <View className="flex-row mt-3 space-x-2 justify-between">
-              <TouchableOpacity className="flex-1 mr-2" onPress={handleStartReading}>
-                <View style={purpleButton}>
-                  <Ionicons name="play" size={22} color="#fff" />
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-1 mr-2" onPress={handlePause}>
-                <View style={purpleButton}>
-                  <Ionicons name="pause" size={22} color="#fff" />
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-1 mr-2" onPress={handleResume}>
-                <View style={purpleButton}>
-                  <Ionicons name="play-forward" size={22} color="#fff" />
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-1" onPress={handleStop}>
-                <View style={purpleButton}>
-                  <Ionicons name="stop" size={22} color="#fff" />
-                </View>
-              </TouchableOpacity>
-            </View>
-
-          </View>
-        ) : null}
 
         {/* News section scrolls independently */}
         <View className="mt-5 flex-1">
@@ -610,6 +568,7 @@ export default function ReadingAssistantScreen() {
           </ScrollView>
         </View>
       </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 }

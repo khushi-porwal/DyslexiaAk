@@ -17,7 +17,7 @@ class DrawingRequest(BaseModel):
 @app.post("/predict")
 def predict(req: DrawingRequest):
     try:
-        result = predict_drawing(req.image)
+        result = predict_drawing(req.image, target=req.target)
         # Defensive: ensure we got a dict
         if not isinstance(result, dict):
             return {

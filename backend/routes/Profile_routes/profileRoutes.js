@@ -2,13 +2,23 @@ const express = require("express");
 const router = express.Router();
 const Profile = require("../../models/Profile_model/Profile");
 const upload = require("../../middleware/ProfileUpload/upload");
+const authMiddleware = require("../../middleware/Auth/authMiddleware");
+const User = require("../../models/User_Model/User");
 
-// GET profile (single user for now)
-router.get("/", async (req, res) => {
+// GET profile (for current user)
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    let profile = await Profile.findOne();
+    const userId = req.userId;
+
+    let profile = await Profile.findOne({ userId });
+
     if (!profile) {
-      profile = await Profile.create({});
+      const user = await User.findById(userId);
+      profile = await Profile.create({
+        userId,
+        username: user?.name || "",
+        email: user?.email || "",
+      });
     }
     res.json(profile);
   } catch (err) {
@@ -17,13 +27,14 @@ router.get("/", async (req, res) => {
 });
 
 // UPDATE profile
-router.put("/", async (req, res) => {
+router.put("/", authMiddleware, async (req, res) => {
   try {
+    const userId = req.userId;
 
     const updated = await Profile.findOneAndUpdate(
-      {},
-      req.body,
-      { new: true, upsert: true }
+      { userId },
+      { ...req.body, userId },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
     );
     res.json(updated);
   } catch (err) {
@@ -84,13 +95,7 @@ router.put("/", async (req, res) => {
 
 router.put(
   "/avatar",
-
-  // 🔍 Debug Content-Type
-  (req, res, next) => {
-    console.log("CONTENT TYPE:", req.headers["content-type"]);
-    next();
-  },
-
+  authMiddleware,
   upload.single("avatar"),
 
   async (req, res) => {
@@ -101,10 +106,10 @@ router.put(
         return res.status(400).json({ message: "No file uploaded" });
       }
 
-      const user = await Profile.findOne();
+      const user = await Profile.findOne({ userId: req.userId });
 
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "User profile not found" });
       }
 
       // Cloudinary gives URL in req.file.path
