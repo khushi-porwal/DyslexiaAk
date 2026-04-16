@@ -39,9 +39,9 @@ export default function DashboardScreen() {
 
         {/* Reading Assistant */}
         <TouchableOpacity
-          onPress={() => router.push("/main/solutions/writing")}
-          className="bg-white rounded-2xl flex-row items-center px-4 py-6"
           onPress={() => router.push("/main/solutions/reading")}
+          className="bg-white rounded-2xl flex-row items-center px-4 py-6"
+         
           
         >
           <MaterialCommunityIcons name="book-open-page-variant" size={28} color="#7D3C98" />
@@ -61,6 +61,7 @@ export default function DashboardScreen() {
 
         {/* Sequencing Assistant */}
         <TouchableOpacity
+          onPress={() => router.push("/main/solutions/sequencing")}
           className="bg-white rounded-2xl flex-row items-center px-4 py-6"
         >
           <MaterialCommunityIcons name="view-dashboard-outline" size={28} color="#7D3C98" />

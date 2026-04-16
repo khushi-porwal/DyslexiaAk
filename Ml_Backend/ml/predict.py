@@ -60,9 +60,14 @@
 
 
 import os
+import warnings
 
 import numpy as np
-import tensorflow as tf
+try:
+    import tensorflow as tf
+except Exception as e:
+    tf = None
+    warnings.warn(f"TensorFlow not available: {e}")
 from ml.preprocess import preprocess_base64_image
 
 # -----------------------------
@@ -77,12 +82,20 @@ LABELS_PATH = os.path.join(BASE_DIR, "labels.txt")
 DEFAULT_THRESHOLD = float(os.getenv("PREDICT_THRESHOLD", "0.2"))
 
 # -----------------------------
-# Load model once
+# Load model once (optional)
 # -----------------------------
+model = None
+MODEL_AVAILABLE = False
 try:
-    model = tf.keras.models.load_model(MODEL_PATH)
+    if tf is not None and os.path.exists(MODEL_PATH):
+        model = tf.keras.models.load_model(MODEL_PATH)
+        MODEL_AVAILABLE = True
+    else:
+        warnings.warn("quickdraw_model.h5 not found or TensorFlow missing; running in fallback mode.")
 except Exception as e:
-    raise RuntimeError(f"Error loading model: {e}")
+    warnings.warn(f"Failed to load model: {e}. Running in fallback mode.")
+    model = None
+    MODEL_AVAILABLE = False
 
 # -----------------------------
 # Load labels
@@ -91,12 +104,13 @@ try:
     with open(LABELS_PATH, "r") as f:
         LABELS = [line.strip() for line in f.readlines()]
 except Exception as e:
-    raise RuntimeError(f"Error loading labels: {e}")
+    warnings.warn(f"Error loading labels: {e}. Using empty label list.")
+    LABELS = []
 
 # -----------------------------
 # Prediction function
 # -----------------------------
-def predict_drawing(base64_image: str, threshold: float = DEFAULT_THRESHOLD):
+def predict_drawing(base64_image: str, target: str = None, threshold: float = DEFAULT_THRESHOLD):
     """
     Predict drawing from base64 image.
 
@@ -109,7 +123,17 @@ def predict_drawing(base64_image: str, threshold: float = DEFAULT_THRESHOLD):
     """
 
     try:
-        # Preprocess image
+        if not MODEL_AVAILABLE or model is None:
+            return {
+                "success": True,
+                "prediction": target or "unknown",
+                "confidence": 0.0,
+                "lowConfidence": True,
+                "fallback": True,
+                "message": "Model not available; returned fallback prediction.",
+            }
+
+        # Preprocess image (only when model exists)
         image = preprocess_base64_image(base64_image)
 
         # Run model prediction

@@ -3,6 +3,7 @@ const os = require("os");
 const path = require("path");
 const Groq = require("groq-sdk");
 const Tesseract = require("tesseract.js");
+const ReadingAssistant = require("../../models/ReadingAssistant_Model/ReadingAssistant");
 
 const groqApiKey = process.env.GROQ_API_KEY;
 const groq =
@@ -37,6 +38,8 @@ exports.scanImage = async (req, res) => {
 
     const { data } = await Tesseract.recognize(req.file.buffer, "eng");
     const text = data?.text?.trim() || "";
+
+    persist(req.userId, text, "scan", data?.confidence);
 
     return res.json({
       success: true,
@@ -74,6 +77,8 @@ exports.transcribeAudio = async (req, res) => {
     });
 
     await fs.promises.unlink(tempPath);
+
+    persist(req.userId, transcription.text, "voice", undefined);
 
     return res.json({
       success: true,
@@ -152,6 +157,8 @@ exports.translateText = async (req, res) => {
       }
     }
 
+    persist(req.userId, text, "translate", undefined, targetLang);
+
     const translated =
       completion?.choices?.[0]?.message?.content?.trim() ||
       "Unable to translate right now.";
@@ -167,5 +174,20 @@ exports.translateText = async (req, res) => {
       message: "Failed to translate text",
       error: error.message,
     });
+  }
+};
+
+const persist = async (userId, text, source, confidence, language = "en") => {
+  try {
+    if (!userId || !text) return;
+    await ReadingAssistant.create({
+      userId,
+      text,
+      source,
+      confidence,
+      language,
+    });
+  } catch (e) {
+    console.error("Reading assistant persist failed:", e.message);
   }
 };
