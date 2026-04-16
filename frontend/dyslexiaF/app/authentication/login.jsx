@@ -16,6 +16,9 @@ import { useRouter } from "expo-router";
 
 export default function LoginPreview() {
   const router = useRouter();
+ 
+  // 🔹 STATES
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,6 +45,8 @@ export default function LoginPreview() {
     try {
       const res = await API.post("/api/auth/login", { email, password });
       await AsyncStorage.setItem("token", res.data.token);
+      await AsyncStorage.setItem("userEmail", email.toLowerCase());
+      
       if (res.data.refreshToken) {
         await AsyncStorage.setItem("refreshToken", res.data.refreshToken);
       }
@@ -67,6 +72,8 @@ export default function LoginPreview() {
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
+      {/* Back Arrow */}
+     
       <TouchableOpacity onPress={() => router.back()}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>

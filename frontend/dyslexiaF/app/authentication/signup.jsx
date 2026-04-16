@@ -14,6 +14,11 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    }
+  };
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

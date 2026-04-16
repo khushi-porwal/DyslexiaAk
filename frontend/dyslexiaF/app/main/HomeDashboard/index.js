@@ -1,9 +1,12 @@
 import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 
 export default function HomeDashboard() {
   const router = useRouter();
+
+  
 
   return (
     <ScrollView 
@@ -13,31 +16,50 @@ export default function HomeDashboard() {
 
       {/* Top Icons */}
       <View className="flex-row justify-between items-center">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={26} color="black" />
+        <TouchableOpacity onPress={()=>router.back("/authentication/login")} activeOpacity={0.8}>
+          <LinearGradient
+            colors={["#FFFFFF", "#EDE5FF"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 24,
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#3A175A",
+              shadowOpacity: 0.18,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 6,
+            }}
+          >
+            <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+          </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/profile")}>
-          <Ionicons name="person-circle-outline" size={30} color="black" />
-        </TouchableOpacity>
+       
+  <TouchableOpacity onPress={() => router.push("/profile")}>
+    <Ionicons name="person" size={30} color="purple" />
+  </TouchableOpacity>
       </View>
 
       {/* Title */}
-      <Text className="text-2xl font-bold mt-4 text-black">
+      <Text className="text-2xl font-bold mt-4 text-black text-center">
         What is Dyslexia ?
       </Text>
 
-      <Text className="text-sm mt-1 text-black leading-5">
-        Dyslexia is a Neurological condition that affects how the brain processes
-        language. People with Dyslexia have normal intelligence, but they struggle
-        with tasks involving reading language.
-      </Text>
+      <Text className="text-lg mt-2  text-black leading-5 text-center text-justify">
+  Dyslexia is a Neurological condition that affects how the brain processes
+  language. People with Dyslexia have normal intelligence, but they struggle
+  with tasks involving reading language.
+</Text>
 
       {/* Image Card */}
       <View className=" rounded-3xl items-center  ">
         <Image
           source={require("../../../assets/images/hamster.png")} 
-          className="w-48 h-48"
+          className="w-50 h-50"
           resizeMode="contain"
         />
       </View>
@@ -45,9 +67,9 @@ export default function HomeDashboard() {
       {/* Screening Test Button */}
       <TouchableOpacity
         onPress={() => router.push("/main/screening")}
-        className="bg-white mt-4 rounded-2xl py-6 px-6 flex-row items-center"
+        className="bg-white mt-3 rounded-2xl py-8 px-4 flex-row items-center"
       >
-        <Ionicons name="medkit-outline" size={28} color="#7D3C98" />
+        <Ionicons name="medkit-outline" size={30} color="#7D3C98" />
         <Text className="text-lg font-semibold ml-10 text-black">
           Screening & Diagnosis Test
         </Text>
@@ -56,9 +78,9 @@ export default function HomeDashboard() {
       {/* Solutions Button */}
       <TouchableOpacity
         onPress={() => router.push("/main/solutions")}
-        className="bg-[#7D3C98] mt-4 rounded-2xl py-6 px-6 flex-row items-center"
+        className="bg-[#7D3C98] mt-3 rounded-2xl py-8 px-6 flex-row items-center"
       >
-        <Ionicons name="reader-outline" size={28} color="white" />
+        <Ionicons name="reader-outline" size={30} color="white" />
         <Text className="text-lg font-semibold ml-20 text-white">
           Solutions
         </Text>

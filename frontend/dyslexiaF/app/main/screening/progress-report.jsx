@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { ScrollView, View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 import { getScreeningProgress } from "../../../constants/progressStorage";
 import Svg, { G, Path, Circle, Text as TextSvg } from "react-native-svg";
 
@@ -105,6 +106,7 @@ export default function ProgressReport() {
       };
     }, [])
   );
+  
 
   const summary = computeSummary(progress);
   const risk = computeRisk(progress);
@@ -153,15 +155,29 @@ export default function ProgressReport() {
 
   return (
     <ScrollView className="flex-1 bg-[#EAF3D2] px-5 pt-10">
-      <View className="flex-row items-center justify-between mb-6">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#1F2937" />
-        </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-900">Progress Report</Text>
-        <Ionicons name="person-circle-outline" size={28} color="#1F2937" />
-      </View>
+      <View className="flex-row justify-between items-center">
+  <TouchableOpacity onPress={()=>router.back("/index")}  activeOpacity={0.8}>
+    <LinearGradient
+      colors={["#FFFFFF", "#EDE5FF"]}
+      style={{
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        alignItems: "center",
+        justifyContent: "center",
+        elevation: 6,
+      }}
+    >
+      <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+    </LinearGradient>
+  </TouchableOpacity>
 
-      <View className="bg-white rounded-3xl p-4 mb-5 shadow-sm border border-green-100">
+  <TouchableOpacity onPress={() => router.push("/profile")}>
+    <Ionicons name="person" size={30} color="green" />
+  </TouchableOpacity>
+</View>
+
+      <View className="bg-white rounded-3xl mt-4 p-4 mb-5 shadow-sm border border-green-100">
         <Text className="text-gray-800 font-semibold">Screening Summary</Text>
         <Text className="text-gray-600 text-sm mt-1">
           Progress is stored with your account and cached on this device after you finish each screening test.

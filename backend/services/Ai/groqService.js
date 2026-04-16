@@ -1,6 +1,23 @@
 const axios = require("axios");
 
-const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
+const FALLBACK_MODEL = "llama-3.1-8b-instant";
+const REQUESTED_MODEL = process.env.GROQ_MODEL;
+const PROHIBITED_MODELS = [
+  "llama3-8b-8192",
+  "llama3-70b-8192",
+  "mixtral-8x7b-32768",
+  "mixtral-8x7b",
+  "llama-3.1-70b-versatile",
+  "llama-3.1-405b-reasoning",
+];
+
+const pickModel = () => {
+  if (!REQUESTED_MODEL) return FALLBACK_MODEL;
+  if (PROHIBITED_MODELS.includes(REQUESTED_MODEL)) return FALLBACK_MODEL;
+  return REQUESTED_MODEL;
+};
+
+const DEFAULT_MODEL = pickModel();
 const BASE_URL = process.env.GROQ_API_URL || "https://api.groq.com/openai/v1";
 
 const groqClient = axios.create({
@@ -14,13 +31,26 @@ const groqClient = axios.create({
   },
 });
 
+const withFallback = async (runner) => {
+  try {
+    return await runner(DEFAULT_MODEL);
+  } catch (err) {
+    const code =
+      err?.response?.data?.error?.code || err?.response?.status || err?.code;
+    if (code === "model_not_found" || code === "model_decommissioned" || code === 404) {
+      return runner(FALLBACK_MODEL);
+    }
+    throw err;
+  }
+};
+
 const getWritingSuggestion = async (text) => {
   if (!process.env.GROQ_API_KEY) {
     throw new Error("GROQ_API_KEY is not set in backend environment");
   }
 
-  const payload = {
-    model: DEFAULT_MODEL,
+  const makePayload = (model) => ({
+    model,
     temperature: 0.3,
     max_tokens: 400,
     messages: [
@@ -34,9 +64,12 @@ const getWritingSuggestion = async (text) => {
         content: `Student writing:\n${text}\n\nReturn:\n1) A corrected version labeled 'Improved'.\n2) Three bullet tips labeled 'Tips'.`,
       },
     ],
-  };
+  });
 
-  const { data } = await groqClient.post("/chat/completions", payload);
+  const data = await withFallback((model) =>
+    groqClient.post("/chat/completions", makePayload(model)).then((res) => res.data)
+  );
+
   const message = data?.choices?.[0]?.message?.content?.trim() || "";
 
   return {
@@ -76,8 +109,8 @@ const spellCheck = async (text) => {
     throw new Error("GROQ_API_KEY is not set in backend environment");
   }
 
-  const payload = {
-    model: DEFAULT_MODEL,
+  const makePayload = (model) => ({
+    model,
     temperature: 0,
     max_tokens: 400,
     response_format: { type: "json_object" },
@@ -92,9 +125,12 @@ const spellCheck = async (text) => {
         content: text,
       },
     ],
-  };
+  });
 
-  const { data } = await groqClient.post("/chat/completions", payload);
+  const data = await withFallback((model) =>
+    groqClient.post("/chat/completions", makePayload(model)).then((res) => res.data)
+  );
+
   const content = data?.choices?.[0]?.message?.content || "{}";
   let parsed = {};
   try {
