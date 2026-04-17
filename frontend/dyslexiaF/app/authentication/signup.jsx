@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -63,8 +64,26 @@ export default function SignUpScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <View>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+       <TouchableOpacity onPress={()=>router.back("/HomeDashboard/index")} activeOpacity={0.8}>
+          <LinearGradient
+            colors={["#FFFFFF", "#EDE5FF"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 24,
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#3A175A",
+              shadowOpacity: 0.18,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 6,
+            }}
+          >
+            <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+          </LinearGradient>
         </TouchableOpacity>
 
         <Text className="text-3xl text-center font-bold text-black mt-2">

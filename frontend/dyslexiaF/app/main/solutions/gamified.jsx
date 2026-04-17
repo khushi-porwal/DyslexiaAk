@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StatusBar } from "react-native";
+import { View, Text, Image, TouchableOpacity, StatusBar, ScrollView } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Gamified() {
   const router = useRouter();
@@ -13,23 +14,42 @@ export default function Gamified() {
 
       {/* Top Bar */}
       <View className="w-[90%] flex-row justify-between items-center mb-2">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
+         <TouchableOpacity onPress={()=>router.back("/HomeDashboard/index")} activeOpacity={0.8}>
+          <LinearGradient
+            colors={["#FFFFFF", "#EDE5FF"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 24,
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#3A175A",
+              shadowOpacity: 0.18,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 6,
+            }}
+          >
+            <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+          </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity>
-          <Ionicons name="person" size={22} color="#000" />
+        <TouchableOpacity onPress={() => router.push("/main/profile")}>
+          <Ionicons name="person" size={30} color="purple" />
         </TouchableOpacity>
       </View>
 
       {/* Puppy Image */}
       <Image
         source={require("../../../assets/images/dog.png")}
-        className="w-60 h-60 -mt-5"
+        className="w-60 h-60 -mt-8"
         resizeMode="contain"
       />
 
       {/* Main Card */}
+      
       <View className="w-[88%] bg-[#F1E3FF] rounded-2xl p-4 gap-4 -mt-8">
 
         {/* Item 1 */}
@@ -113,14 +133,16 @@ export default function Gamified() {
       </View>
 
       {/* Bottom Button */}
+      {/* <View>
       <TouchableOpacity
-        className="absolute bottom-6 w-[85%] bg-[#7D3BCF] py-4 rounded-full items-center"
+        className="absolute bottom-6 w-[85%] bg-[#7D3BCF] py-4 rounded-full items-center "
         onPress={() => router.push("/main/solutions/frog-rhyme")}
       >
         <Text className="text-white font-bold text-[16px]">
           Let's Start the Game
         </Text>
       </TouchableOpacity>
+      </View> */}
 
     </View>
   );

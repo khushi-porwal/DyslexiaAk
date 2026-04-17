@@ -395,15 +395,32 @@ export default function ReadingAssistantScreen() {
       >
       <View className="flex-1 px-5 pt-4">
         <View className="flex-row justify-between items-center mb-2">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="w-10 h-10 rounded-full items-center justify-center"
-          >
-            <Ionicons name="arrow-back" size={22} color="#2f0a44" />
-          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>router.back("/HomeDashboard/index")} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={["#FFFFFF", "#EDE5FF"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 24,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    shadowColor: "#3A175A",
+                    shadowOpacity: 0.18,
+                    shadowRadius: 8,
+                    shadowOffset: { width: 0, height: 4 },
+                    elevation: 6,
+                  }}
+                >
+                  <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+                </LinearGradient>
+              </TouchableOpacity>
 
-          <TouchableOpacity className="w-10 h-10 rounded-full items-center justify-center">
-            <Ionicons name="person" size={22} color="#2f0a44" />
+          <TouchableOpacity 
+          onPress={() => router.push("/main/profile")}
+          className="w-10 h-10 rounded-full items-center justify-center">
+            <Ionicons name="person" size={30} color="#521b71" />
           </TouchableOpacity>
         </View>
 

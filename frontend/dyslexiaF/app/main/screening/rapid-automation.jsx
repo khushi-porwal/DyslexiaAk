@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   PanResponder,
   Alert,
+  TouchableOpacity
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import ViewShot from "react-native-view-shot";
@@ -15,6 +16,8 @@ import axios from "axios";
 import { getBackendUrl } from "../../../constants/api";
 import { saveScreeningResult } from "../../../constants/progressStorage";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 
 const CANVAS_SIZE = 280;
 
@@ -29,6 +32,7 @@ export default function RapidDrawing() {
   const [paths, setPaths] = useState([]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const router = useRouter();
 
   const currentPath = useRef("");
   const viewShotRef = useRef(null);
@@ -107,21 +111,37 @@ export default function RapidDrawing() {
   return (
     <View className="flex-1 bg-[#E6B3F7]">
       {/* HEADER (fixed) */}
-      <View className="px-4 pt-8 pb-2">
-        <View className="flex-row items-center justify-between mb-2">
-          <Pressable
-            onPress={() => {}}
-            hitSlop={12}
-            className="w-11 h-11 rounded-full bg-white shadow-md items-center justify-center"
+      <View className="px-4 pt-10 pb-2">
+        <View className="flex-row justify-between items-center">
+        <TouchableOpacity onPress={()=>router.back("/HomeDashboard/index")} activeOpacity={0.8}>
+          <LinearGradient
+            colors={["#FFFFFF", "#EDE5FF"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 24,
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#3A175A",
+              shadowOpacity: 0.18,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 6,
+            }}
           >
-            <Ionicons name="chevron-back" size={26} color="#4A0C73" />
-          </Pressable>
-          <View className="flex-1" />
-          <Pressable onPress={() => {}} hitSlop={12}>
-            <Ionicons name="person" size={27} color="#7A0F75" />
-          </Pressable>
-        </View>
-        <Text className="text-2xl font-extrabold text-[#0f172a] text-center mt-0 mb-1">
+            <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+          </LinearGradient>
+        </TouchableOpacity>
+
+
+        <TouchableOpacity onPress={() => router.push("/main/profile")}>
+          <Ionicons name="person" size={30} color="purple" />
+        </TouchableOpacity>
+      </View>
+                
+        <Text className="text-3xl font-extrabold text-[#0f172a] text-center mt-2 mb-0">
           Rapid Automation
         </Text>
       </View>
