@@ -25,7 +25,7 @@ export const getBackendUrl = () => {
   }
 
   // Simulators / emulators
-  if (Platform.OS === "android") return "http://192.168.0.181:5000";
+  if (Platform.OS === "android") return "http://192.168.0.93:5000";
   if (Platform.OS === "ios") return "http://localhost:5000";
 
   // Fallback for web
