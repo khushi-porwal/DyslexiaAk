@@ -6,6 +6,7 @@ import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API from "../../api/axios";
 import { useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
 
 
@@ -80,57 +81,6 @@ export default function Profile() {
   };
 
   
-
-//   const pickImage = async () => {
-//     console.log("Hi");
-//     const { status } =
-//     await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-//   if (status !== "granted") {
-//     alert("Permission needed to access gallery!");
-//     return;
-//   }
-//   const result = await ImagePicker.launchImageLibraryAsync({
-//     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-//     quality: 0.7,
-//   });
-
-//   if (!result.canceled) {
-//     const imageUri = result.assets[0].uri;
-
-//     const formData = new FormData();
-
-//     formData.append("avatar", {
-//       uri: imageUri,
-//       name: "profile.jpg",
-//       type: "image/jpeg",
-//     });    
-
-//     try {
-//       console.log("🚀 Sending request...");
-     
-//       const res = await axios.put(
-//         "http://192.168.0.126:5000/api/profile/avatar",
-//       formData,
-//       // { headers: { "Content-Type": "multipart/form-data" } }
-//     );
-
-    
-//           // console.log("SERVER RESPONSE:", res.data);
-//       // setUser(res.data);
-//       setUser(prev => ({
-//   ...prev,
-//   avatar: res.data.avatar
-// }));
-
-//     } catch (err) {
-//       console.log("UPLOAD ERROR:", err.message);
-//       console.log("FULL ERROR:", err.toJSON?.());
-//     }
-//   }
-// };
-
-
 const pickImage = async () => {
   const { status } =
     await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -195,9 +145,27 @@ const pickImage = async () => {
     <ScrollView className="flex-1 bg-[#E6B3FF] px-5 pt-10">
       
       {/* Header */}
-      <TouchableOpacity onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={26} />
-      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>router.back("/HomeDashboard/index")} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={["#FFFFFF", "#EDE5FF"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 24,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    shadowColor: "#3A175A",
+                    shadowOpacity: 0.18,
+                    shadowRadius: 8,
+                    shadowOffset: { width: 0, height: 4 },
+                    elevation: 6,
+                  }}
+                >
+                  <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+                </LinearGradient>
+              </TouchableOpacity>
 
       {/* Avatar */}
       <View className = "items-center">

@@ -91,8 +91,8 @@ export default function GreyReadingScreen({ navigation }) {
               <LinearGradient
                 colors={["#FFFFFF", "#EDE5FF"]}
                 style={{
-                  width: 48,
-                  height: 48,
+                  width: 40,
+                  height: 40,
                   borderRadius: 24,
                   alignItems: "center",
                   justifyContent: "center",
@@ -114,21 +114,21 @@ export default function GreyReadingScreen({ navigation }) {
         </View>
 
         {/* Title */}
-        <Text className="text-2xl font-bold text-black text-center mt-4">
+        <Text className="text-3xl font-bold text-black text-center mt-4">
           Grey Oral Test
         </Text>
 
         {/* Image */}
-        <View className="mt-8 w-[85%] h-[190px] items-center justify-center">
+        <View className="mt-6 w-[85%] h-[190px] items-center justify-center">
           <Image
             source={require("../../../assets/images/girl.png")}
-            className="w-50 h-30"
+            className="w-80 h-80"
     resizeMode="contain"
           />
         </View>
 
         {/* Subtitle */}
-        <Text className="mt-8 text-[16px] font-bold text-black">
+        <Text className="mt-5 text-[16px] font-bold text-black">
           Read the above written text
         </Text>
 

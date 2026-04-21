@@ -22,8 +22,8 @@ export default function HomeDashboard() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
-              width: 48,
-              height: 48,
+              width: 40,
+              height: 40,
               borderRadius: 24,
               alignItems: "center",
               justifyContent: "center",
@@ -39,13 +39,13 @@ export default function HomeDashboard() {
         </TouchableOpacity>
 
        
-  <TouchableOpacity onPress={() => router.push("/profile")}>
+  <TouchableOpacity onPress={() => router.push("/main/profile")}>
     <Ionicons name="person" size={30} color="purple" />
   </TouchableOpacity>
       </View>
 
       {/* Title */}
-      <Text className="text-2xl font-bold mt-4 text-black text-center">
+      <Text className="text-3xl font-bold mt-4 text-black text-center">
         What is Dyslexia ?
       </Text>
 
@@ -59,7 +59,7 @@ export default function HomeDashboard() {
       <View className=" rounded-3xl items-center  ">
         <Image
           source={require("../../../assets/images/hamster.png")} 
-          className="w-50 h-50"
+          className="w-80 h-80"
           resizeMode="contain"
         />
       </View>

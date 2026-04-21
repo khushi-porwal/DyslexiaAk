@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import API from "../../api/axios";
 import * as Speech from "expo-speech";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function WritingAssistant() {
   const router = useRouter();
@@ -227,28 +228,48 @@ export default function WritingAssistant() {
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
-        <View className="flex-row items-center mb-4">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="mr-3 bg-white/80 rounded-full p-2"
+        <View className="flex-row justify-between items-center">
+        <TouchableOpacity onPress={()=>router.back("/HomeDashboard/index")} activeOpacity={0.8}>
+          <LinearGradient
+            colors={["#FFFFFF", "#EDE5FF"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 24,
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#3A175A",
+              shadowOpacity: 0.18,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 6,
+            }}
           >
-            <Ionicons name="arrow-back" size={22} color="#231942" />
-          </TouchableOpacity>
-          <View className="flex-1 ml-1">
-            <Text className="text-2xl text-center font-extrabold text-[#231942]">
-              Writing Assistant
-            </Text>
-            <Text className="text-sm text-center text-[#4A3F6D]">
+            <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+          </LinearGradient>
+        </TouchableOpacity>
+
+
+        <TouchableOpacity onPress={() => router.push("/main/profile")}>
+          <Ionicons name="person" size={30} color="purple" />
+        </TouchableOpacity>
+      </View>
+      <Text className="text-3xl font-bold text-center text-gray-800">
+       Writing Assistant
+      </Text>
+          <Text className="text-sm text-center text-[#4A3F6D]">
               Friendly helper for spelling & speaking
             </Text>
-          </View>
-          <View className="bg-white/80 px-3 py-2 rounded-full">
-            <Text className="text-xs font-semibold text-[#5B21B6]">LIVE</Text>
-          </View>
-        </View>
+                
+          
+            
+        
 
         {/* Mascot hero */}
-        <View className="bg-white rounded-3xl p-4 mb-4 shadow-md border border-[#F0D7FF]">
+        
+        <View className="bg-white rounded-3xl p-4 mb-4 shadow-md border border-[#F0D7FF] mt-3">
           <View className="flex-row items-center">
             <View className="bg-[#F3E8FF] rounded-3xl p-3 mr-3">
               <Image

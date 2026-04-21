@@ -53,8 +53,8 @@ export default function ScreeningTest() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
-              width: 48,
-              height: 48,
+              width: 40,
+              height: 40,
               borderRadius: 24,
               alignItems: "center",
               justifyContent: "center",
@@ -70,29 +70,29 @@ export default function ScreeningTest() {
         </TouchableOpacity>
 
 
-        <TouchableOpacity onPress={() => router.push("/profile")}>
+        <TouchableOpacity onPress={() => router.push("/main/profile")}>
           <Ionicons name="person" size={30} color="green" />
         </TouchableOpacity>
       </View>
 
-      <Text className="text-2xl font-bold text-center text-gray-800">
+      <Text className="text-3xl font-bold text-center text-gray-800">
         Screening Test
       </Text>
 
 
 
       {/* Owl Section */}
-      <View className="rounded-3xl items-center justify-center">
+      <View className="rounded-3xl items-center justify-center mt-[-40]">
         <Image
           source={require("../../../assets/images/Owls.png")}
-          className="w-[350px] h-[260px]"
+          className="w-80 h-80"
           resizeMode="contain"
         />
       </View>
-      <View className="items-center mt-[-40] mb-4">
+      <View className="items-center mt-[-70] mb-6">
   <Image
     source={require("../../../assets/images/lines.png")}
-    className="w-50 h-30"
+    className="w-50 h-10"
     resizeMode="contain"
   />
 </View>
@@ -128,7 +128,7 @@ export default function ScreeningTest() {
       {hasProgress && (
         <TouchableOpacity
           onPress={() => router.push("/main/screening/progress-report")}
-          className="mt-8 bg-white flex-row items-center justify-center rounded-2xl py-4 px-4 shadow-md border border-green-200"
+          className="mt-10 bg-white flex-row items-center justify-center rounded-2xl py-4 px-4 shadow-md border border-green-200"
         >
           <Ionicons name="stats-chart" size={22} color="#1F2937" />
           <Text className="text-base font-semibold text-gray-800 ml-2">
@@ -150,8 +150,8 @@ function TestCard({ title, icon, onPress }) {
       tabIndex={Platform.OS === "web" ? -1 : undefined}
       className="
         bg-white
-        w-[48%]
-        h-40
+        w-[47%]
+        h-30
         rounded-2xl
         px-3
         py-6
