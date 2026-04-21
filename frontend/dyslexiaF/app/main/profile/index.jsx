@@ -52,7 +52,6 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      
       setLoading(true);
       const token = await AsyncStorage.getItem("token");
       const res = await API.get("/api/profile", {
