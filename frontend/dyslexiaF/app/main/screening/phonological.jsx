@@ -221,8 +221,8 @@ export default function PhonologicalTest() {
             <LinearGradient
               colors={["#FFFFFF", "#EDE5FF"]}
               style={{
-                width: 48,
-                height: 48,
+                width: 40,
+                height: 40,
                 borderRadius: 24,
                 alignItems: "center",
                 justifyContent: "center",

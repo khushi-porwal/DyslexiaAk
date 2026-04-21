@@ -160,8 +160,8 @@ export default function ProgressReport() {
     <LinearGradient
       colors={["#FFFFFF", "#EDE5FF"]}
       style={{
-        width: 48,
-        height: 48,
+        width: 40,
+        height: 40,
         borderRadius: 24,
         alignItems: "center",
         justifyContent: "center",
@@ -172,7 +172,7 @@ export default function ProgressReport() {
     </LinearGradient>
   </TouchableOpacity>
 
-  <TouchableOpacity onPress={() => router.push("/profile")}>
+  <TouchableOpacity onPress={() => router.push("/main/profile")}>
     <Ionicons name="person" size={30} color="green" />
   </TouchableOpacity>
 </View>

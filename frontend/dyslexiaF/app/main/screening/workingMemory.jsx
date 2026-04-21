@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, Image, ScrollView, Alert } from "react-na
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { LinearGradient } from "expo-linear-gradient";
 import * as Speech from "expo-speech";
 import { useRouter } from "expo-router";
 import { getBackendUrl } from "../../../constants/api";
@@ -80,13 +81,46 @@ export default function WorkingMemory() {
   return (
     <ScrollView className="flex-1 bg-[#FFE08A] px-4 pt-10">
 
-      <View className="flex-row justify-between items-center mb-6">
+      <View className="flex-row justify-between items-center">
+              <TouchableOpacity onPress={()=>router.back("/HomeDashboard/index")} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={["#FFFFFF", "#EDE5FF"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 24,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    shadowColor: "#3A175A",
+                    shadowOpacity: 0.18,
+                    shadowRadius: 8,
+                    shadowOffset: { width: 0, height: 4 },
+                    elevation: 6,
+                  }}
+                >
+                  <Ionicons name="chevron-back" size={24} color="#2B0F4A" />
+                </LinearGradient>
+              </TouchableOpacity>
+      
+      
+              <TouchableOpacity onPress={() => router.push("/main/profile")}>
+                <Ionicons name="person" size={30} color="orange" />
+              </TouchableOpacity>
+            </View>
+
+            <Text className="text-3xl font-bold text-center text-gray-800 mt-5 mb-4">
+                 Working Memory Test
+            </Text>
+
+      {/* <View className="flex-row justify-between items-center mb-6">
         <Ionicons name="arrow-back" size={26} />
         <Text className="text-2xl font-bold">Working Memory Test</Text>
         <TouchableOpacity onPress={() => router.push("/main/profile")}>
-            <Ionicons name="person-circle" size={32} />
+            <Ionicons name="person" size={30} color="orange" />
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {questions.map((q, qIndex) => (
         <View key={q._id} className="bg-white rounded-3xl p-5 mb-6 shadow-md">
